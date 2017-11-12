@@ -1,0 +1,31 @@
+{
+  "name": "le0daniel/WpSystem",
+  "type": "project",
+  "license": "MIT",
+  "description": "A simple Wordpress Addon which adds the Laravel 5 Service Container and Twig support",
+  "authors": [
+    {
+      "name": "Leo Daniel Studer",
+      "email": "leodaniel@nitrosoft.ch",
+      "homepage": "https://github.com/le0daniel"
+    }
+  ],
+  "repositories": [],
+  "require": {
+    "php": ">=7.0",
+    "vlucas/phpdotenv": "^2.0.1",
+    "oscarotero/env": "^1.1.0",
+    "illuminate/container": "^5.5",
+    "illuminate/support": "^5.5",
+    "symfony/process": "^3.3",
+    "symfony/var-dumper": "^3.3",
+    "Timber/Timber": "^1.5",
+    "monolog/monolog": "^1.23",
+    "illuminate/pipeline": "^5.5"
+  },
+  "autoload":{
+    "psr-4": {
+      "le0daniel\\System\\":"src/"
+    }
+  }
+}
