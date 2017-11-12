@@ -1,5 +1,5 @@
 {
-  "name": "le0daniel/WpSystem",
+  "name": "le0daniel/wp_system",
   "type": "project",
   "license": "MIT",
   "description": "A simple Wordpress Addon which adds the Laravel 5 Service Container and Twig support",
