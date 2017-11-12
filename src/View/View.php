@@ -11,6 +11,7 @@ namespace le0daniel\System\View;
 
 use Dotenv\Exception\InvalidFileException;
 use Illuminate\Container\Container;
+use le0daniel\System\App;
 use le0daniel\System\View\ViewComposers\TwigViewComposer;
 use le0daniel\System\Contracts\ViewComposer;
 use le0daniel\System\Helpers\Path;
@@ -202,7 +203,7 @@ class View {
 			/* Usefull for knowing which file was called by wordpress! */
 			'file_called'       =>basename($file_called),
 			'file_called_full'  =>$file_called,
-
+			'root_dir'          =>\app()->getRootDir()
 
 		];
 	}
