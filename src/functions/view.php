@@ -4,11 +4,11 @@
  * @param null $template
  * @param array $data
  *
- * @return \System\View\View|string
+ * @return le0daniel\System\View\View|string
  */
 function view($template = null,$data = []){
 
-	$view = resolve(\System\View\View::class);
+	$view = resolve(\le0daniel\System\View\View::class);
 
 	if(is_string($template)){
 		return $view->render($template,$data);
