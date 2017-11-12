@@ -131,11 +131,11 @@ class TwigViewComposer implements ViewComposer {
 	public function registerTwigFilters(\Twig_Environment $twig){
 
 		$twig->addFilter(
-			new \Twig_Filter('theme_path','\\System\\Helpers\\TwigFilters::themePath')
+			new \Twig_Filter('theme_path','\\le0daniel\\System\\Helpers\\TwigFilters::themePath')
 		);
 
 		$twig->addFilter(
-			new \Twig_Filter('static_path','\\System\\Helpers\\TwigFilters::staticPath')
+			new \Twig_Filter('static_path','\\le0daniel\\System\\Helpers\\TwigFilters::staticPath')
 		);
 
 		return $twig;
