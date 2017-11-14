@@ -10,7 +10,7 @@
  */
 function resolve($abstract = null,...$params){
 
-	$container = app()->getContainer();
+	$container = \le0daniel\System\App::getInstance()->getContainer();
 
 	/* Resolve */
 	if(is_string($abstract)){

@@ -12,6 +12,50 @@ namespace le0daniel\System\Helpers;
 class Path {
 
 	/**
+	 * @var string
+	 */
+	public static $root_dir = '';
+
+	/**
+	 * @var array
+	 */
+	public static $required = [
+		'cache',
+		'storage',
+		'storage/log'
+	];
+
+	/**
+	 * Check and create required dirs
+	 */
+	public static function checkRequiredDirs(){
+		foreach (self::$required as $dir){
+			if(!file_exists(self::$root_dir.'/'.$dir)){
+				mkdir(self::$root_dir.'/'.$dir,0777,true);
+				file_put_contents(self::$root_dir.'/'.$dir.'/.htaccess','Deny from all');
+			}
+		}
+	}
+
+	/**
+	 * @param string $path
+	 *
+	 * @return string
+	 */
+	public static function cachePath($path=''):string{
+		return rtrim(self::$root_dir.'/cache/'.$path,'/');
+	}
+
+	/**
+	 * @param string $path
+	 *
+	 * @return string
+	 */
+	public static function storagePath($path=''):string{
+		return rtrim( self::$root_dir.'/storage/'.$path ,'/');
+	}
+
+	/**
 	 * @param array ...$strings
 	 *
 	 * @return string

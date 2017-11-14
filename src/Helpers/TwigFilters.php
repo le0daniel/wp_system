@@ -30,6 +30,11 @@ class TwigFilters {
 		);
 	}
 
+	/**
+	 * @param string $path
+	 *
+	 * @return string
+	 */
 	public static function staticPath(string $path):string{
 		return Path::combine(
 			get_template_directory_uri(),

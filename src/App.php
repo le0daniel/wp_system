@@ -11,6 +11,7 @@ namespace le0daniel\System;
 
 use Carbon\Carbon;
 use Illuminate\Container\Container;
+use le0daniel\System\Helpers\Path;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
@@ -30,7 +31,7 @@ class App {
 	/**
 	 * @var string
 	 */
-	private static $name = 'System';
+	private static $name = 'le0daniel\\System';
 
 	/**
 	 * @var string
@@ -50,7 +51,7 @@ class App {
 	/**
 	 * @var string
 	 */
-	private static $root_dir;
+	public static $root_dir;
 
 	/**
 	 * IoC Container (L5)
@@ -68,7 +69,9 @@ class App {
 		self::$boot_time = microtime(true);
 
 		/* Set Root Dir */
-		self::$root_dir = (isset($GLOBALS['root_dir']))? realpath($GLOBALS['root_dir']) : realpath(__DIR__.'/..');
+		if( ! isset(self::$root_dir) ){
+			self::$root_dir = (isset($GLOBALS['root_dir']))? realpath($GLOBALS['root_dir']) : realpath(__DIR__.'/..');
+		}
 
 		/* Include the container */
 		$this->container = require_once __DIR__ .'/bootstrap/ioc.php';
@@ -76,38 +79,18 @@ class App {
 		/* Bind Kernel */
 		$this->bindKernel();
 
-		/* Register Bindings */
+		/* Register and boot! */
 		$this->register();
-
-		/* Boot */
 		$this->boot();
 	}
 
 	/**
-	 * Singlton Pattern
-	 *
-	 * @return App
-	 */
-	public static function getInstance():App{
-		if(!isset(self::$instance)){
-			self::$instance = new self();
-		}
-		return self::$instance;
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getRootDir(){
-		return self::$root_dir;
-	}
-
-	/**
-	 * Expose the global app helper
+	 * @param string|null $root_dir
 	 *
 	 * @return bool
+	 * @throws \Exception
 	 */
-	public static function init():bool{
+	public static function init(string $root_dir = null):bool{
 
 		if( function_exists('app')){
 			return false;
@@ -127,10 +110,53 @@ class App {
 			require __DIR__.'/functions/view.php';
 		}
 
+		/* Set Dir */
+		if( empty($root_dir) ){
+			throw new \Exception('Root dir required to boot!');
+		}
+		self::$root_dir = realpath($root_dir);
+		Path::$root_dir = self::$root_dir;
+
+		/* Check dirs */
+		Path::checkRequiredDirs();
+
+		/* Require the path functions */
+		require __DIR__.'/functions/paths.php';
+
 		/* Require the App function helper */
 		require __DIR__.'/functions/app.php';
 
 		return true;
+	}
+
+	/**
+	 * Singlton Pattern
+	 *
+	 * @return App
+	 */
+	public static function getInstance():App{
+		if(!isset(self::$instance)){
+			self::$instance = new self();
+		}
+		return self::$instance;
+	}
+
+	/**
+	 *
+	 */
+	public static function checkRequiredDirs(){
+
+		$required = [
+			'cache',
+		];
+
+		foreach ($required as $dir){
+			if(!file_exists(self::$root_dir.'/'.$dir)){
+				mkdir(self::$root_dir.'/'.$dir,0777,true);
+				file_put_contents(self::$root_dir.'/'.$dir.'/.htaccess','Deny from all');
+			}
+		}
+
 	}
 
 	/**
@@ -176,7 +202,6 @@ class App {
 	protected function boot(){
 		/* Boot */
 
-
 		/* Run the kernel */
 		$this->container->call('le0daniel\\System\\Contracts\\Kernel@boot');
 	}
@@ -204,7 +229,7 @@ class App {
 	 *
 	 * @return Logger
 	 */
-	public function log():Logger {
+	public function log():Logger{
 		return $this->container->get(Logger::class);
 	}
 

@@ -13,9 +13,25 @@ use Illuminate\Container\Container;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use le0daniel\System\Contracts\ViewComposer;
 use le0daniel\System\Helpers\Path;
+use le0daniel\System\WordPress\Context;
 use Timber\Timber;
 
 class TwigViewComposer implements ViewComposer {
+
+	/**
+	 * @var array
+	 */
+	private $twig_config = [
+		'debug'=>false,
+		'charset'=>'utf-8',
+		'strict_variables'=>false,
+		'autoescape'=>'html',
+	];
+
+	/**
+	 * @var \Twig_Environment
+	 */
+	private $twig;
 
 	/**
 	 * @var Container
@@ -25,7 +41,7 @@ class TwigViewComposer implements ViewComposer {
 	/**
 	 * @var string
 	 */
-	private $calling_script_path;
+	private $root_dir;
 
 	/**
 	 * @var array
@@ -36,64 +52,62 @@ class TwigViewComposer implements ViewComposer {
 	 * TwigViewComposer constructor.
 	 *
 	 * @param Container $container
-	 * @param string $calling_script_path
+	 * @param string $root_dir
 	 * @param array $include_paths
 	 */
 	public function __construct(
 		Container $container,
-		string $calling_script_path,
+		string $root_dir,
 		array $include_paths = []
 	) {
 		$this->container = $container;
 
-		/* Configure Timber */
-		if(WP_DEBUG !== true){
-			Timber::$twig_cache = true;
-		}
-
-		/* Escape HTML by default! */
-		Timber::$autoescape = 'html';
-
-		/* Make and bind timber */
-		$timber = $this->container->make(Timber::class);
-		$this->container->instance(Timber::class,$timber);
-
 		/* Get Calling script */
-		$this->calling_script_path = $calling_script_path;
+		$this->root_dir = $root_dir;
 
 		/* Set include paths */
 		$this->include_paths = $include_paths;
 
-		/* Register Timber Hooks */
-		$this->registerFilters();
+		/* Init Twig */
+		$this->buildTwig();
 	}
 
 	/**
-	 * Add wordpress filters
+	 * Build Twig
 	 */
-	protected function registerFilters(){
-		add_filter('timber/loader/loader',  [$this,'addPaths']);
-		add_filter('timber/twig',           [$this,'registerTwigFilters']);
-		add_filter('timber/cache/location', [$this,'twigCachePath']);
+	protected function buildTwig(){
+
+		/* Load Twig */
+		$loader = new \Twig_Loader_Filesystem($this->root_dir);
+
+		/* Add Additional paths */
+		$this->addPaths($loader);
+
+		/* Get config */
+		$config = $this->twig_config;
+
+		/* Set Cache */
+		if(WP_DEBUG !== true){
+			$config['cache']=$this->twigCachePath();
+		}
+		else{
+			$config['cache']=false;
+		}
+
+		/* Init Twig */
+		$this->twig = new \Twig_Environment($loader,$config);
+
+		/* Register Filters */
+		$this->registerTwigFiltersAndFunctions($this->twig);
 	}
 
 	/**
 	 * Overwrites the default cache path
 	 *
-	 * @param $default_path
-	 *
 	 * @return string
 	 */
-	public function twigCachePath($default_path = ''):string {
-
-		$cache_path =Path::combine( $this->calling_script_path ,'cache');
-
-		/* Make Sure the dir exists */
-		if( ! file_exists($cache_path) || ! is_dir($cache_path) ){
-			mkdir($cache_path,0777,true);
-		}
-
-		return $cache_path;
+	public function twigCachePath():string {
+		return Path::cachePath();
 	}
 
 	/**
@@ -110,8 +124,8 @@ class TwigViewComposer implements ViewComposer {
 			if( Path::isAbsolute($path) && file_exists($path) ){
 				$filesystem_loader->addPath($path,$alias);
 			}
-			elseif( file_exists($this->calling_script_path. '/' . $path) ){
-				$filesystem_loader->addPath($this->calling_script_path. '/' . $path,$alias);
+			elseif( file_exists( $this->root_dir . '/' . $path) ){
+				$filesystem_loader->addPath( $this->root_dir . '/' . $path,$alias);
 			}
 			else{
 				throw new FileNotFoundException(
@@ -119,8 +133,6 @@ class TwigViewComposer implements ViewComposer {
 				);
 			}
 		}
-
-		return $filesystem_loader;
 	}
 
 	/**
@@ -128,7 +140,7 @@ class TwigViewComposer implements ViewComposer {
 	 *
 	 * @return \Twig_Environment
 	 */
-	public function registerTwigFilters(\Twig_Environment $twig){
+	public function registerTwigFiltersAndFunctions(\Twig_Environment $twig){
 
 		$twig->addFilter(
 			new \Twig_Filter('theme_path','\\le0daniel\\System\\Helpers\\TwigFilters::themePath')
@@ -136,6 +148,10 @@ class TwigViewComposer implements ViewComposer {
 
 		$twig->addFilter(
 			new \Twig_Filter('static_path','\\le0daniel\\System\\Helpers\\TwigFilters::staticPath')
+		);
+
+		$twig->addFunction(
+			new \Twig_Function('function','\\le0daniel\\System\\Helpers\\TwigFunctions::captureCallableOutput')
 		);
 
 		return $twig;
@@ -147,7 +163,7 @@ class TwigViewComposer implements ViewComposer {
 	 * @return array
 	 */
 	protected function getWPContext():array{
-		return (array) Timber::get_context();
+		return resolve('wp.context')->toArray();
 	}
 
 	/**
@@ -159,7 +175,7 @@ class TwigViewComposer implements ViewComposer {
 	 * @return string
 	 */
 	public function render( string $filename, array $data ): string {
-		return (string) Timber::fetch( $filename, $this->constructData( $data ) );
+		return (string) $this->twig->render($filename,$this->constructData($data));
 	}
 
 	/**

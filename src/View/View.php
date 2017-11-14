@@ -45,9 +45,11 @@ class View {
 	];
 
 	/**
+	 * The root dir for the view composer
+	 *
 	 * @var string
 	 */
-	protected $prefix_filename;
+	protected $root_dir;
 
 	/**
 	 * View constructor.
@@ -71,6 +73,16 @@ class View {
 	 */
 	public function registerViewComposer(string $file_extension,$viewComposer){
 		$this->composers[ trim( $file_extension,'.') ]= $viewComposer;
+		return $this;
+	}
+
+	/**
+	 * @param string $path
+	 *
+	 * @return $this
+	 */
+	public function setRootDir(string $path){
+		$this->root_dir = $path;
 		return $this;
 	}
 
@@ -111,24 +123,15 @@ class View {
 	}
 
 	/**
-	 * @param string $prefix
-	 */
-	public function addFilenamePrefix(string $prefix){
-
-		/* delete / */
-		if(substr($prefix,-1) === '/'){
-			$prefix = substr($prefix, 0, -1);
-		}
-
-		$this->prefix_filename = $prefix;
-	}
-
-	/**
 	 * @param string $path
 	 * @param string $alias
+	 *
+	 * @return $this
 	 */
 	public function addIncludePath(string $path,string $alias){
 		$this->include_paths[$path]=$alias;
+
+		return $this;
 	}
 
 	/**
@@ -138,12 +141,12 @@ class View {
 	 * @param array $data
 	 *
 	 * @return string
+	 * @throws \Exception
 	 */
 	public function render(string $filename,array $data=[]):string {
 
-		/* Combine file name */
-		if(isset($this->prefix_filename)){
-			$filename = $this->prefix_filename . '/' . trim($filename,'/');
+		if( ! isset($this->root_dir)){
+			throw new \Exception('View root is missing!');
 		}
 
 		/* Get the view composer */
@@ -195,16 +198,11 @@ class View {
 	 */
 	protected function setAdditionalData(){
 
-		$file_called = Path::getCallingScriptFile(1);
-
 		/* Sets the WP data */
 		$this->data['wp']=[
-
-			/* Usefull for knowing which file was called by wordpress! */
-			'file_called'       =>basename($file_called),
-			'file_called_full'  =>$file_called,
-			'root_dir'          =>\app()->getRootDir()
-
+			/* Root dir, to look for templates */
+			'root_dir'          =>$this->root_dir,
+			'additional_paths'  =>array_keys($this->include_paths),
 		];
 	}
 
@@ -249,9 +247,10 @@ class View {
 	 * @return array
 	 */
 	protected function getViewComposerContext():array {
+
 		return [
-			'calling_script_path'   =>Path::getCallingScriptDir(1),
-			'include_paths'         =>$this->include_paths,
+			'root_dir'      =>$this->root_dir,
+			'include_paths' =>$this->include_paths,
 		];
 	}
 

@@ -11,6 +11,7 @@ namespace le0daniel\System\Http;
 
 use Illuminate\Container\Container;
 use le0daniel\System\Contracts\Kernel as KernelContract;
+use le0daniel\System\WordPress\Context;
 
 class Kernel implements KernelContract {
 
@@ -28,6 +29,12 @@ class Kernel implements KernelContract {
 		$this->container = $container;
 	}
 
-	public function boot() {}
+	public function boot() {
+
+		/* Register the context as singleton */
+		$this->container->singleton(Context::class);
+		$this->container->alias(Context::class,'wp.context');
+
+	}
 	public function run() {}
 }
