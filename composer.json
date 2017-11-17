@@ -13,8 +13,6 @@
   "repositories": [],
   "require": {
     "php": ">=7.0",
-    "vlucas/phpdotenv": "^2.0.1",
-    "oscarotero/env": "^1.1.0",
     "illuminate/container": "^5.5",
     "illuminate/support": "^5.5",
     "symfony/process": "^3.3",

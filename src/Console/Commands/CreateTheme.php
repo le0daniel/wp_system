@@ -66,22 +66,22 @@ class CreateTheme extends Command{
 		$output->writeln('Namespace > <info> '.$this->namespace.' </info>');
 
 		/* Update composer Json to support PSR-4 for the Theme */
-		//$this->updateComposerJson();
+		$this->updateComposerJson();
 
 		/* Update Webpack Mix for theme */
-		//$this->updateWebpackMix();
+		$this->updateWebpackMix();
 
 		/* Edit Functions file */
-		//$this->modifyFunctionsFile();
+		$this->modifyFunctionsFile();
 
 		/* Create style.css file */
-		//$this->createStyleFile();
+		$this->createStyleFile();
 
 		/* Modify Extender File */
 		$this->modifyExtenderFile();
 
 		/* Rename the theme */
-		//rename(Path::themesPath('skeletton'),Path::themesPath($this->slug));
+		rename(Path::themesPath('skeletton'),Path::themesPath($this->slug));
 	}
 
 	/**
@@ -173,8 +173,9 @@ class CreateTheme extends Command{
 
 		$file_path = Path::themesPath('skeletton/functions.php');
 		$search_replace = [
-			'/* %ThemeName% */' => sprintf('$theme_name = \'%s\';',$this->slug),
-			'/* %NameSpace% */' => sprintf('namespace %s;',$this->namespace),
+			'/* %ThemeName% */'     => sprintf('$theme_name = \'%s\';',$this->slug),
+			'/* %NameSpace% */'     => sprintf('namespace %s;',$this->namespace),
+			'/* %UseWPExtender% */' => sprintf('use %s\\App\\WordPressExtender;',$this->namespace),
 		];
 
 		$content = file_get_contents($file_path);
