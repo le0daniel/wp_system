@@ -318,7 +318,7 @@ class View {
 
 		/* Add context! */
 		if($with_context){
-			$data_to_render = $this->addContextToData($data);
+			$data_to_render = $this->addContextToData($data_to_render);
 		}
 
 		return (string) $this->getTwig()->render(

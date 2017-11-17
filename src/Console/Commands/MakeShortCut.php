@@ -94,7 +94,7 @@ class MakeShortCut extends Command
 		$name = $helper->ask($input, $output, $question);
 		$slug = snake_case($name);
 		$class= ucfirst(camel_case($name));
-		$namespace = 'Themes\\'.ucfirst($theme).'\\App\\ShortCodes';
+		$namespace = 'Themes\\'.ucfirst( camel_case($theme) ).'\\App\\ShortCodes';
 
 		/* Ask if Slug is okey */
 
