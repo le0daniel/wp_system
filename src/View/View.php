@@ -9,11 +9,8 @@
 namespace le0daniel\System\View;
 
 
-use Dotenv\Exception\InvalidFileException;
 use Illuminate\Container\Container;
-use le0daniel\System\App;
-use le0daniel\System\View\ViewComposers\TwigViewComposer;
-use le0daniel\System\Contracts\ViewComposer;
+use le0daniel\System\Contracts\CastArray;
 use le0daniel\System\Helpers\Path;
 
 class View {
@@ -21,18 +18,60 @@ class View {
 	protected $container;
 
 	/**
-	 * List of composers
-	 *
 	 * @var array
 	 */
-	protected $composers = [];
+	private $twig_config = [
+		'debug'=>false,
+		'charset'=>'utf-8',
+		'strict_variables'=>false,
+		'autoescape'=>'html',
+	];
 
 	/**
-	 * List of composers
+	 * @var \Twig_Environment
+	 */
+	private $twig;
+
+	/**
+	 * If it should be cached in plain HTML
+	 * This should not be used if you use lazy loading
+	 * of context!
+	 *
+	 * @var bool
+	 */
+	private $plain_cache = false;
+
+	/**
+	 * To add params, associate with array
+	 * string $name => [ callable $callable , array $options ]
 	 *
 	 * @var array
 	 */
-	protected $include_paths = [];
+	protected $filters = [
+		'theme_path'    =>'\\le0daniel\\System\\Helpers\\TwigFilters::themePath',
+		'static_path'   =>'\\le0daniel\\System\\Helpers\\TwigFilters::staticPath',
+
+		/* Translation filters */
+		't'             =>'\\le0daniel\\System\\Helpers\\TwigFilters::translate',
+		'translate'     =>'\\le0daniel\\System\\Helpers\\TwigFilters::translate',
+
+		/* Shortcodes, may be vulnerable to xss, developer should handle that! */
+		'shortcode'     =>[
+			'\\le0daniel\\System\\Helpers\\TwigFilters::shortcode',
+			['is_safe'=>['html']]
+		],
+	];
+
+	/**
+	 * To add params, associate with array
+	 * string $name => [ callable $callable , array $options ]
+	 *
+	 * @var array
+	 */
+	protected $functions = [
+		'function'      =>'\\le0daniel\\System\\Helpers\\TwigFunctions::captureCallableOutput',
+		'field'         =>'\\le0daniel\\System\\Helpers\\TwigFunctions::getFieldValue',
+	];
 
 	/**
 	 * Array containing the Data
@@ -43,6 +82,11 @@ class View {
 		'debug'=>       WP_DEBUG,
 		'hot_reload'=>  HOT_RELOAD,
 	];
+
+	/**
+	 * @var array
+	 */
+	protected $context = [];
 
 	/**
 	 * The root dir for the view composer
@@ -59,21 +103,74 @@ class View {
 	public function __construct(Container $container) {
 		$this->container = $container;
 
-		/* Add twig view composer */
-		$this->registerViewComposer('twig',TwigViewComposer::class);
+		/* Set WP Data */
+		$this->setAdditionalData();
 	}
 
 	/**
-	 * Register a custom view composer
+	 * Set Plain Cache!
 	 *
-	 * @param string $file_extension
-	 * @param $viewComposer
+	 * @param bool $bool
 	 *
 	 * @return $this
 	 */
-	public function registerViewComposer(string $file_extension,$viewComposer){
-		$this->composers[ trim( $file_extension,'.') ]= $viewComposer;
+	public function setPlainCache(bool $bool){
+		$this->plain_cache = $bool;
 		return $this;
+	}
+
+	/**
+	 * Builds and returns Twig
+	 *
+	 * @return \Twig_Environment
+	 */
+	protected function getTwig(){
+		if(!isset($this->twig)){
+			$this->buildTwig();
+		}
+		return $this->twig;
+	}
+
+	/**
+	 * Build Twig
+	 */
+	protected function buildTwig(){
+
+		if( ! isset($this->root_dir)){
+			throw new \Exception('View root is missing!');
+		}
+
+		/* Load Twig */
+		$loader = new \Twig_Loader_Filesystem($this->root_dir);
+
+		/* Get config */
+		$config = $this->twig_config;
+
+		/* Set Cache */
+		$config['cache']=$this->twigCachePath();
+		if(WP_DEBUG === true){
+			$config['cache']=false;
+		}
+
+		/* Init Twig */
+		$this->twig = new \Twig_Environment($loader,$config);
+
+		/* Register Filters */
+		$this->registerTwigFiltersAndFunctions();
+	}
+
+	/**
+	 * @return string
+	 */
+	public function twigCachePath():string {
+		return Path::cachePath('twig');
+	}
+
+	/**
+	 * @return string
+	 */
+	public function compiledCachePath():string{
+		return Path::cachePath('rendered');
 	}
 
 	/**
@@ -87,6 +184,58 @@ class View {
 	}
 
 	/**
+	 *
+	 * @return void
+	 */
+	public function registerTwigFiltersAndFunctions(){
+
+		array_walk($this->filters,[$this,'parseAndAddFunctionOrFilter'],'filter');
+		array_walk($this->functions,[$this,'parseAndAddFunctionOrFilter'],'function');
+
+	}
+
+	/**
+	 * @param $abstract
+	 * @param string $name
+	 * @param string $type
+	 */
+	protected function parseAndAddFunctionOrFilter($abstract,string $name,string $type){
+
+		$callable = $abstract;
+		$params = [];
+
+		/* Parse Input if needed */
+		if( is_array($abstract) && ! is_callable($abstract) ){
+			list($callable,$params) = $abstract;
+		}
+
+		/* add to twig */
+		$this->{'add'.ucfirst($type)}($callable,$name,$params);
+	}
+
+	/**
+	 * @param callable $callable
+	 * @param string $name
+	 * @param array $params
+	 */
+	public function addFilter(callable $callable,string $name,$params = []){
+		$this->getTwig()->addFilter(
+			new \Twig_Filter($name,$callable,$params)
+		);
+	}
+
+	/**
+	 * @param callable $callable
+	 * @param string $name
+	 * @param array $params
+	 */
+	public function addFunction(callable $callable,string $name,$params = []){
+		$this->getTwig()->addFunction(
+			new \Twig_Function($name,$callable,$params)
+		);
+	}
+
+	/**
 	 * Share data with all views
 	 *
 	 * @param string $key
@@ -95,6 +244,23 @@ class View {
 	 */
 	public function share(string $key,$value):View{
 		$this->data[$key]=$this->getValue($value);
+
+		return $this;
+	}
+
+	/**
+	 * @param CastArray $context
+	 *
+	 * @return $this
+	 * @throws \Exception
+	 */
+	public function addContext(CastArray $context){
+
+		if( ! empty($this->context) ){
+			throw new \Exception('Context can only be set once!');
+		}
+
+		$this->context = $context->toArray();
 
 		return $this;
 	}
@@ -129,31 +295,36 @@ class View {
 	 * @return $this
 	 */
 	public function addIncludePath(string $path,string $alias){
-		$this->include_paths[$path]=$alias;
+
+		/** @var \Twig_Loader_Filesystem $loader */
+		$loader = $this->getTwig()->getLoader();
+		$loader->addPath($path,$alias);
 
 		return $this;
 	}
 
 	/**
-	 * Renders a given Template with an extension
+	 * Renders a given Template
 	 *
 	 * @param string $filename
 	 * @param array $data
+	 * @param bool $with_context
 	 *
 	 * @return string
-	 * @throws \Exception
 	 */
-	public function render(string $filename,array $data=[]):string {
+	public function render(string $filename,array $data=[], bool $with_context = true):string {
 
-		if( ! isset($this->root_dir)){
-			throw new \Exception('View root is missing!');
+		$data_to_render = $this->mergeData($data);
+
+		/* Add context! */
+		if($with_context){
+			$data_to_render = $this->addContextToData($data);
 		}
 
-		/* Get the view composer */
-		$composer = $this->getViewComposerByFilename($filename);
-
-		/* Let the view composer render the view! */
-		return $composer->render($filename,$this->mergeData($data));
+		return (string) $this->getTwig()->render(
+			$filename,
+			$data_to_render
+		);
 	}
 
 	/**
@@ -175,11 +346,6 @@ class View {
 	 */
 	protected function mergeData(array $data):array {
 
-		/**
-		 * Adds Additional Data to the data object
-		 */
-		$this->setAdditionalData();
-
 		$intersect = array_intersect_key($this->data,$data);
 
 		/* Check if there is a collision! */
@@ -194,6 +360,15 @@ class View {
 	}
 
 	/**
+	 * @param array $data
+	 *
+	 * @return array
+	 */
+	protected function addContextToData(array $data):array{
+		return array_merge($data,$this->context);
+	}
+
+	/**
 	 * Adds additional Data to the data object
 	 */
 	protected function setAdditionalData(){
@@ -202,55 +377,6 @@ class View {
 		$this->data['wp']=[
 			/* Root dir, to look for templates */
 			'root_dir'          =>$this->root_dir,
-			'additional_paths'  =>array_keys($this->include_paths),
-		];
-	}
-
-	/**
-	 * @param string $filename
-	 *
-	 * @throws InvalidFileException
-	 * @return ViewComposer
-	 */
-	protected function getViewComposerByFilename(string $filename):ViewComposer{
-
-		/* Escape */
-		$mapped_ends = array_map(function($regex){
-			return preg_quote($regex);
-		},array_keys($this->composers));
-
-		/* Build regex */
-		$regex = '/^.*\.(' . implode('|',$mapped_ends) . ')$/';
-
-		/* Match */
-		preg_match($regex,$filename,$matches);
-
-		/* Error, View composer not found */
-		if( ! isset($matches[1]) ){
-			throw new InvalidFileException(
-				sprintf('No view composer found for %s',$filename)
-			);
-		}
-
-		/**
-		 * Build and return the Composer!
-		 */
-		return $this->container->make(
-			$this->composers[ $matches[1] ],
-			$this->getViewComposerContext()
-		);
-	}
-
-	/**
-	 * The available Variables passed to the View Composer
-	 *
-	 * @return array
-	 */
-	protected function getViewComposerContext():array {
-
-		return [
-			'root_dir'      =>$this->root_dir,
-			'include_paths' =>$this->include_paths,
 		];
 	}
 

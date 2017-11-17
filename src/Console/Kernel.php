@@ -10,7 +10,9 @@ namespace le0daniel\System\Console;
 
 
 use Illuminate\Container\Container;
+use le0daniel\System\Console\Commands\MakeShortCut;
 use le0daniel\System\Contracts\Kernel as KernelContract;
+use Symfony\Component\Console\Application;
 
 class Kernel implements KernelContract {
 
@@ -20,7 +22,7 @@ class Kernel implements KernelContract {
 	 * @var array
 	 */
 	private $commands = [
-
+		MakeShortCut::class,
 	];
 
 	/**
@@ -37,7 +39,25 @@ class Kernel implements KernelContract {
 		$this->container = $container;
 	}
 
+	/**
+	 * Register Bindings
+	 */
+	public function boot() {
+		$this->container->singleton('console',Application::class);
+	}
 
-	public function boot() {}
-	public function run() {}
+	/**
+	 * Run
+	 */
+	public function run() {
+		/** @var Application $app */
+		$app = $this->container->make('console');
+
+		/* Add commands */
+		array_walk($this->commands,function(string $abstract)use($app){
+			$app->add( $this->container->make($abstract) );
+		});
+
+		$app->run();
+	}
 }

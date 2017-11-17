@@ -16,6 +16,8 @@ namespace le0daniel\System\Helpers;
  */
 class TwigFilters {
 
+	public static $translation_context = '';
+
 	/**
 	 * Twig filter for Theme Path
 	 *
@@ -43,5 +45,30 @@ class TwigFilters {
 		);
 	}
 
+	/**
+	 * @param string $content
+	 *
+	 * @return string
+	 */
+	public static function shortcode(string $content):string{
+		return do_shortcode($content,false);
+	}
+
+	/**
+	 * Translates a String
+	 *
+	 * @param string $key
+	 *
+	 * @return string
+	 * @throws \Exception
+	 */
+	public static function translate(string $key):string{
+
+		if(empty(self::$translation_context)){
+			throw new \Exception('Translation context not set!');
+		}
+
+		return __($key,self::$translation_context);
+	}
 
 }

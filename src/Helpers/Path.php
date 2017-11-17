@@ -21,6 +21,8 @@ class Path {
 	 */
 	public static $required = [
 		'cache',
+		'cache/rendered',
+		'cache/twig',
 		'storage',
 		'storage/log'
 	];
@@ -44,6 +46,34 @@ class Path {
 	 */
 	public static function cachePath($path=''):string{
 		return rtrim(self::$root_dir.'/cache/'.$path,'/');
+	}
+
+	/**
+	 * @param string $path
+	 *
+	 * @return string
+	 */
+	public static function themesPath($path=''):string{
+		return rtrim(self::$root_dir.'/web/app/themes/'.$path,'/');
+	}
+
+	/**
+	 * Returns all available themes
+	 *
+	 * @return array
+	 */
+	public static function getAvailableThemes():array{
+
+		$themes = [];
+
+		$dirs = new \DirectoryIterator(self::themesPath());
+		foreach ($dirs as $dir) {
+			if ($dir->isDir() && ! $dir->isDot()) {
+				$themes[] = $dir->getFilename();
+			}
+		}
+
+		return $themes;
 	}
 
 	/**
