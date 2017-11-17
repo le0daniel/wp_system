@@ -38,6 +38,7 @@ class MetaField {
 		 */
 		if( ! function_exists('get_field_object')){
 			$this->attributes = [];
+			return;
 		}
 
 		$field =  get_field_object($key,$id);
