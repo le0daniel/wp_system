@@ -33,6 +33,13 @@ class MetaField {
 	 */
 	public function __construct(string $key,$id = false) {
 
+		/**
+		 * Custom Field not installed
+		 */
+		if( ! function_exists('get_field_object')){
+			$this->attributes = [];
+		}
+
 		$field =  get_field_object($key,$id);
 
 		$this->attributes = $field['value'];
