@@ -16,14 +16,19 @@ use Symfony\Component\Console\Input\ArgvInput;
 class ComposerScripts {
 
 	/**
+	 * @var bool|string
+	 */
+	public static $mock_dir = false;
+
+	/**
 	 * Handels creating the Theme!
 	 */
-	public static function afterRootInstall($mock_dir = false){
+	public static function afterRootInstall(){
 
 		/* Find Root Dir */
 		$dir = __dir__;
-		if($mock_dir){
-			$dir = $mock_dir;
+		if(self::$mock_dir){
+			$dir = self::$mock_dir;
 		}
 
 		for ($i = 0;$i < 5;$i++){
