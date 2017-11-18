@@ -10,6 +10,7 @@ namespace le0daniel\System\WordPress\Extend;
 
 use Illuminate\Container\Container;
 use le0daniel\System\Contracts\ShortCode;
+use le0daniel\System\Contracts\VisualComposerComponent;
 
 class AddLogic {
 
@@ -24,6 +25,11 @@ class AddLogic {
 	 * @var array
 	 */
 	protected $shortcodes = [];
+
+	/**
+	 * @var array
+	 */
+	protected $vc_components = [];
 
 	/**
 	 * WordPressExtender constructor.
@@ -42,6 +48,8 @@ class AddLogic {
 		/* Add Actions */
 		add_action('init',[$this,'registerShortCodes']);
 
+		/* Register Possible VS Components */
+		add_action( 'vc_before_init',[$this,'registerVisualComposerComponents']);
 	}
 
 	/**
@@ -51,8 +59,14 @@ class AddLogic {
 
 		/* Make the Shortcodes */
 		array_walk($this->shortcodes,[$this,'makeShortCode']);
-
 		array_walk($this->shortcodes,[$this,'registerShortCode']);
+	}
+
+	/**
+	 * Register all Possible VC Components!
+	 */
+	public function registerVisualComposerComponents(){
+		array_walk($this->vc_components,[$this,'VisualComposerComponent']);
 	}
 
 	/**
@@ -64,6 +78,8 @@ class AddLogic {
 	 */
 	protected function makeShortCode(&$abstract){
 
+		$has_vc = function_exists('vc_map');
+
 		/* Make object if needed */
 		if( ! is_object($abstract) ){
 			$abstract = $this->container->make($abstract);
@@ -71,6 +87,11 @@ class AddLogic {
 
 		if( ! $abstract instanceof ShortCode){
 			throw new \Exception('Shortcode must Implement the Shortcode contract!');
+		}
+
+		/* Add Visual Composer component */
+		if( $has_vc && $abstract instanceof VisualComposerComponent){
+			$this->vc_components[] = $abstract;
 		}
 	}
 
@@ -80,6 +101,14 @@ class AddLogic {
 	protected function registerShortCode(ShortCode $short_code){
 		list($name,$callable) = $short_code->toShortcode();
 		add_shortcode($name,$callable);
+	}
+
+	/**
+	 * @param VisualComposerComponent $component
+	 */
+	protected function registerVisualComposerComponent(VisualComposerComponent $component){
+		/* Add Component */
+		vc_map($component->toVisualComposer());
 	}
 
 }

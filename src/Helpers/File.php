@@ -42,13 +42,27 @@ class File {
 	}
 
 	/**
+	 * @param string $namespace
+	 * @param array $uses
 	 * @param string $creator
 	 *
 	 * @return array
 	 */
-	public static function generatePhpFileHeader(string $creator = 'FileGenerator'):array{
+	public static function generatePhpFileHeader(string $namespace='',array $uses = [],string $creator = 'FileGenerator'):array{
 
 		$now = Carbon::now();
+
+		$header = [];
+
+		if( ! empty($namespace) ){
+			$header[] = sprintf('namespace %s;',$namespace).PHP_EOL;
+		}
+
+		if( ! empty($uses) ){
+			foreach($uses as $use){
+				$header[] = sprintf('use %s;',$use);
+			}
+		}
 
 		$doc_block = self::generateCommentBlockArray([
 			'Created by '.$creator,
@@ -57,9 +71,14 @@ class File {
 			'Time: '.$now->toTimeString(),
 		]);
 
-		array_unshift($doc_block,'<?php');
+		/* Add new Line at the end */
+		$header[] = PHP_EOL;
 
-		return $doc_block;
+		/* Add Begin of file! */
+		$fullheader = array_merge($doc_block,$header);
+		array_unshift($fullheader,'<?php');
+
+		return $fullheader;
 	}
 
 	/**
@@ -80,10 +99,11 @@ class File {
 	 * @param array $content
 	 * @param string $extends
 	 * @param array $interfaces
+	 * @param array $traits
 	 *
 	 * @return array
 	 */
-	public static function generatePhpClass(string $name,array $content=[],string $extends='',$interfaces=[]):array{
+	public static function generatePhpClass(string $name,array $content=[],string $extends='',$interfaces=[],$traits = []):array{
 
 		$class_comment_block = self::generateCommentBlockArray([
 			sprintf('Class %s',$name)
@@ -104,7 +124,11 @@ class File {
 		$class[] = $class_line;
 		$class[] = '{';
 
-		if(!empty($content)){
+		if ( ! empty($traits) ){
+			array_unshift($content,sprintf('use %s;',implode(', ',$traits)));
+		}
+
+		if( ! empty($content) ){
 			$class[] = $content;
 		}
 
@@ -113,6 +137,16 @@ class File {
 		return $class;
 	}
 
+	/**
+	 * @param string $name
+	 * @param string $visibility
+	 * @param array $arguments
+	 * @param bool $static
+	 * @param array $content
+	 *
+	 * @return array
+	 * @throws \Exception
+	 */
 	public static function generatePhpMethod(string $name, string $visibility = 'public',array $arguments,bool $static = false,array $content=[]){
 
 		$visibilities = [

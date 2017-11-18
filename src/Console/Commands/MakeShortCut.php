@@ -9,12 +9,14 @@
 namespace le0daniel\System\Console\Commands;
 
 use Carbon\Carbon;
+use le0daniel\System\Helpers\File;
 use le0daniel\System\Helpers\Path;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Exception\RuntimeException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
+use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Console\Question\Question;
 
 /**
@@ -25,9 +27,25 @@ class MakeShortCut extends Command
 {
 
 	/**
+	 * @var array
+	 */
+	protected $shortcut = [
+		'name'=>null,
+		'slug'=>null,
+		'class'=>null,
+		'namespace'=>null,
+	];
+	/**
 	 * @var String
 	 */
 	protected $theme_path;
+
+	/**
+	 * Is it a visual composer component
+	 *
+	 * @var bool
+	 */
+	protected $is_vc_component = false;
 
 	/**
 	 *
@@ -50,6 +68,7 @@ class MakeShortCut extends Command
 		$helper = $this->getHelper('question');
 		$theme = '';
 
+		/* Ask for the theme */
 		if(count(Path::getAvailableThemes()) === 1 ){
 			$theme = Path::getAvailableThemes()[0];
 		}
@@ -62,6 +81,7 @@ class MakeShortCut extends Command
 			$theme = $helper->ask($input, $output, $question);
 		}
 
+		/* Get the path to the theme */
 		$this->theme_path = Path::themesPath($theme);
 
 		$output->writeln('Creating shortcut for Theme <info>'.ucfirst($theme).'</info>');
@@ -89,16 +109,16 @@ class MakeShortCut extends Command
 
 			return $answer;
 		});
-		$question->setMaxAttempts(4);
+		$question->setMaxAttempts(5);
 
-		$name = $helper->ask($input, $output, $question);
-		$slug = snake_case($name);
-		$class= ucfirst(camel_case($name));
-		$namespace = 'Themes\\'.ucfirst( camel_case($theme) ).'\\App\\ShortCodes';
+		/* Safe data */
+		$this->shortcut['name'] = $helper->ask($input, $output, $question);
+		$this->shortcut['slug'] = snake_case($this->shortcut['name']);
+		$this->shortcut['class']= ucfirst(camel_case($this->shortcut['name']));
+		$this->shortcut['namespace']='Themes\\'.ucfirst(camel_case($theme)).'\\App\\ShortCodes';
 
-		/* Ask if Slug is okey */
-
-		$question = new Question('Enter the slug (alphanum, lowercase and `_`) [<info>'.$slug.'</info>]: ', $slug);
+		/* Confirm Slug */
+		$question = new Question('Enter the slug (alphanum, lowercase and `_`) [<info>'.$this->shortcut['slug'].'</info>]: ', $this->shortcut['slug']);
 		$question->setValidator(function ($answer) {
 			if (! is_string($answer) || ! preg_match('/^[a-z][a-z0-9_]+[a-z0-9]$/',$answer)) {
 				throw new \RuntimeException('The slug can only contain lowercase letters and numbers and underscores'.PHP_EOL.'Full Regex: ^[a-z][a-z0-9_]+[a-z0-9]$');
@@ -109,26 +129,45 @@ class MakeShortCut extends Command
 
 			return $answer;
 		});
-		$question->setMaxAttempts(4);
-		$slug = $helper->ask($input, $output, $question);
+		$question->setMaxAttempts(5);
+		$this->shortcut['slug'] = $helper->ask($input, $output, $question);
 
-		/*  */
-		$output->writeln('Shortcurt name:  <info>'.$name.'</info>');
-		$output->writeln('Shortcurt slug:  <info>'.$slug.'</info>');
-		$output->writeln('Shortcurt class: <info>'.$class.'</info>');
+		/* Ask for Visual Composer */
+		$question = new ConfirmationQuestion('Is this a visual composer component? [<info>y/n</info>]: ', false);
+		$this->is_vc_component = $helper->ask($input, $output, $question);
 
-		/* Generate and Save Class */
-		$generated_class = $this->generateClass($class,$namespace,$name,$slug);
-		file_put_contents($this->theme_path.'/App/ShortCodes/'.$class.'.php',$generated_class);
+		/* Show output to user */
+		$output->writeln('Shortcurt name:  <info>'.$this->shortcut['name'].'</info>');
+		$output->writeln('Shortcurt slug:  <info>'.$this->shortcut['slug'].'</info>');
+		$output->writeln('Shortcurt class: <info>'.$this->shortcut['class'].'</info>');
+		$output->writeln('In namespace:  : <info>'.$this->shortcut['namespace'].'</info>');
 
-		/* Create Twig Template */
-		$generated_twig_template = $this->generateTwigTemplate($name,$slug,$class);
-		file_put_contents($this->theme_path.'/resources/views/shortcodes/'.$slug.'.twig',$generated_twig_template);
+		/* Generate The Class */
+		$this->generateControllerClass();
 
+		/* Generate the twig template */
+		$this->generateTwigTemplate();
+
+		/* Show Output */
 		$output->writeln('<info>Successfully generated</info>');
 		$output->writeln('<info>Don\'t forget to register the Class in App\\WordPressExtender</info>');
 
 		return;
+
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getControllerSavePath():string{
+		return $this->theme_path.'/App/ShortCodes/'.$this->shortcut['class'].'.php';
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getTwigTemplateSavePath():string{
+		return $this->theme_path.'/resources/views/shortcodes/'.$this->shortcut['slug'].'.twig';
 	}
 
 	/**
@@ -144,86 +183,87 @@ class MakeShortCut extends Command
 	}
 
 	/**
-	 * @param string $class_name
-	 * @param string $namespace
-	 * @param string $name
-	 * @param string $slug
-	 *
-	 * @return array|string
+	 * @return void
 	 */
-	protected function generateClass(string $class_name,string $namespace,string $name,string $slug){
+	protected function generateControllerClass(){
 
-		$lines = [
-
-			'<?php',
-			'/* Created by le0daniel/wp_system */',
-			'',
-			sprintf('namespace %s;',$namespace),
-			'',
-			'use le0daniel\\System\\WordPress\\ShortCode;',
-			'',
-			'',
-			sprintf('class %s extends ShortCode {',$class_name),
-
-			[
-				'',
-				sprintf('protected $name = \'%s\';',$name),
-				sprintf('protected $slug = \'%s\';',$slug),
-				''
-			],
-
-			'}'
-
+		/* Namespace Usages */
+		$uses = [
+			'le0daniel\\System\\WordPress\\ShortCode',
+			'le0daniel\\System\\Contracts\\VisualComposerComponent',
+			'le0daniel\\System\\Traits\\isVisualComposerComponent',
+			'le0daniel\\System\\WordPress\\VisualComposer\\ParameterHelper'
 		];
 
-		return $this->generateFromArray($lines);
+		/* Implemented $interfaces and traits */
+		$interfaces = [];
+		$traits = [];
+		$content = [
+			sprintf('protected $name = \'%s\';',$this->shortcut['name']),
+			sprintf('protected $slug = \'%s\';',$this->shortcut['slug']),
+		];
+		if($this->is_vc_component){
+			$interfaces[] = 'VisualComposerComponent';
+			$traits[] = 'isVisualComposerComponent';
+
+			$content[] = PHP_EOL;
+			$content[] = 'protected $categorie   = "";';
+			$content[] = 'protected $description = "";';
+			$content[] = PHP_EOL;
+			$content[] = File::generatePhpMethod(
+				'createVisualComposerParams',
+				'public',
+				[
+					'ParameterHelper $param'
+				]
+			);
+		}
+
+		$header = File::generatePhpFileHeader(
+			$this->shortcut['namespace'],
+			$uses
+		);
+
+		$class = File::generatePhpClass(
+			$this->shortcut['class'],
+			$content,
+			'ShortCode',
+			$interfaces,
+			$traits
+		);
+
+		$compiled = File::generateFromArray(
+			array_merge($header,$class)
+		);
+
+		file_put_contents($this->getControllerSavePath(),$compiled);
+
+		return;
 	}
 
 	/**
-	 * @param string $name
-	 * @param string $slug
-	 * @param string $class_name
-	 *
-	 * @return string
+	 * Generate the twig template
 	 */
-	protected function generateTwigTemplate(string $name,string $slug,string $class_name):string {
+	protected function generateTwigTemplate() {
+
+		$now = Carbon::now();
 
 		$lines = [
 			'{# ',
-			' # This is the Template file for the Shortcode '.$name,
+			' # This is the Template file for the Shortcode '.$this->shortcut['name'],
 			' # ',
-			' # The identifiere is: '.$slug,
+			' # The identifiere is: '.$this->shortcut['slug'],
 			' # The context is disabled by default, if you want to change that,',
-			' # you need to edit it\'s Controller ('.$class_name.')',
+			' # you need to edit it\'s Controller ('.$this->shortcut['class'].')',
 			' # which can be found in ~App/ShortCodes',
 			' # ',
-			' # Generated on '.Carbon::now()->toDateTimeString(),
+			' # Date: '.$now->toDateString(),
+			' # Time: '.$now->toTimeString(),
 			' #}',
 		];
 
-		return implode(PHP_EOL,$lines);
-	}
-
-	/**
-	 * @param array $array
-	 * @param int $count
-	 *
-	 * @return string
-	 */
-	protected function generateFromArray(array $array,int $count = 0):string{
-		$add = 4;
-		$return = [];
-
-		foreach($array as $line){
-			if (is_array($line)){
-				$return[] = $this->generateFromArray($line, ($count + $add) );
-			}
-			else{
-				$return[] = str_repeat(' ',$count).$line;
-			}
-		}
-
-		return implode(PHP_EOL,$return);
+		$compiled = implode(PHP_EOL,$lines);
+		file_put_contents($this->getTwigTemplateSavePath(),$compiled);
 	}
 
 }

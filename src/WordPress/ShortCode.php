@@ -9,6 +9,7 @@
 namespace le0daniel\System\WordPress;
 
 use le0daniel\System\Contracts\ShortCode as ShortCodeContract;
+use le0daniel\System\WordPress\VisualComposer\ParameterHelper;
 
 class ShortCode implements ShortCodeContract{
 
@@ -78,19 +79,6 @@ class ShortCode implements ShortCodeContract{
 	}
 
 	/**
-	 * adds it to VC
-	 */
-	public function toVC(){}
-
-	/**
-	 * adds The shortcode to Wordpress
-	 */
-	public function addShortcode(){
-		list($name,$callable) = $this->toShortcode();
-		add_shortcode($name,$callable);
-	}
-
-	/**
 	 * Returns an array to construct a shortcode
 	 *
 	 * @return array
@@ -116,5 +104,15 @@ class ShortCode implements ShortCodeContract{
 
 		/* IMPORTANT: A shortcode has Access to the View WP Context! */
 		return view()->render( $this->getTemplateName(), $attributes, $this->render_with_context);
+	}
+
+
+	/* ======================= */
+	protected $categorie = '';
+	protected $description = 'Description Here!';
+
+
+	public function createVisualComposerParams(ParameterHelper $param){
+
 	}
 }

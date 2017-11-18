@@ -9,6 +9,14 @@
 namespace le0daniel\System\Contracts;
 
 
+use le0daniel\System\WordPress\VisualComposer\ParameterHelper;
+
 interface VisualComposerComponent {
+
+	/**
+	 * @return array
+	 */
+	public function toVisualComposer():array;
+	public function createVisualComposerParams(ParameterHelper $param);
 
 }
