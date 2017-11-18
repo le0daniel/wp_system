@@ -12,6 +12,7 @@ namespace le0daniel\System\Http;
 use Illuminate\Container\Container;
 use le0daniel\System\Contracts\Kernel as KernelContract;
 use le0daniel\System\WordPress\Context;
+use Monolog\Logger;
 use Whoops\Handler\PrettyPageHandler;
 use Whoops\Run;
 
@@ -38,15 +39,43 @@ class Kernel implements KernelContract {
 		$this->container->alias(Context::class,'wp.context');
 
 		/* Create The error handler */
-		$whoops = $this->container->make(Run::class);
-		$this->container->instance('error.handler',$whoops);
+		$whoops = $this->registerErrorHandler();
 
+		$this->container->instance('error.handler',$whoops);
 	}
+
+	protected function registerErrorHandler(){
+
+		$whoops = $this->container->make(Run::class);
+		if( WP_DEBUG ){
+
+			$whoops->pushHandler($this->container->make(PrettyPageHandler::class));
+			assert_options(ASSERT_ACTIVE, true);
+
+		}
+		else{
+			$whoops->pushHandler(function($e){
+				/** @var Logger $logger */
+				$logger = $this->container->get('log');
+				$logger->emergency('Error',$e);
+
+				try{
+					view('@pages/500.twig');
+				}catch (\Exception $e){
+					echo 'We encountered a Fatal Error!';
+					die();
+				}
+
+			});
+		}
+
+		$whoops->register();
+		return $whoops;
+	}
+
 	public function run() {
 
-		/** @var Run $whoops */
-		$whoops = $this->container->get('error.handler');
-		$whoops->pushHandler($this->container->make(PrettyPageHandler::class));
-		$whoops->register();
+
+
 	}
 }
