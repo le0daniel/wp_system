@@ -23,6 +23,7 @@ class Path {
 		'cache',
 		'cache/rendered',
 		'cache/twig',
+		'cache/vc',
 		'storage',
 		'storage/log'
 	];

@@ -10,6 +10,7 @@ namespace le0daniel\System\Console;
 
 
 use Illuminate\Container\Container;
+use le0daniel\System\Console\Commands\ClearCacheVC;
 use le0daniel\System\Console\Commands\MakeShortCut;
 use le0daniel\System\Contracts\Kernel as KernelContract;
 use Symfony\Component\Console\Application;
@@ -23,6 +24,7 @@ class Kernel implements KernelContract {
 	 */
 	private $commands = [
 		MakeShortCut::class,
+		ClearCacheVC::class,
 	];
 
 	/**

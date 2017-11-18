@@ -105,14 +105,4 @@ class ShortCode implements ShortCodeContract{
 		/* IMPORTANT: A shortcode has Access to the View WP Context! */
 		return view()->render( $this->getTemplateName(), $attributes, $this->render_with_context);
 	}
-
-
-	/* ======================= */
-	protected $categorie = '';
-	protected $description = 'Description Here!';
-
-
-	public function createVisualComposerParams(ParameterHelper $param){
-
-	}
 }

@@ -45,6 +45,9 @@ class AddLogic {
 	 */
 	public function boot(){
 
+		/* Init all shortcodes */
+		array_walk($this->shortcodes,[$this,'makeShortCode']);
+
 		/* Add Actions */
 		add_action('init',[$this,'registerShortCodes']);
 
@@ -58,7 +61,6 @@ class AddLogic {
 	public function registerShortCodes(){
 
 		/* Make the Shortcodes */
-		array_walk($this->shortcodes,[$this,'makeShortCode']);
 		array_walk($this->shortcodes,[$this,'registerShortCode']);
 	}
 
@@ -66,7 +68,7 @@ class AddLogic {
 	 * Register all Possible VC Components!
 	 */
 	public function registerVisualComposerComponents(){
-		array_walk($this->vc_components,[$this,'VisualComposerComponent']);
+		array_walk($this->vc_components,[$this,'registerVisualComposerComponent']);
 	}
 
 	/**
@@ -78,8 +80,6 @@ class AddLogic {
 	 */
 	protected function makeShortCode(&$abstract){
 
-		$has_vc = function_exists('vc_map');
-
 		/* Make object if needed */
 		if( ! is_object($abstract) ){
 			$abstract = $this->container->make($abstract);
@@ -90,7 +90,7 @@ class AddLogic {
 		}
 
 		/* Add Visual Composer component */
-		if( $has_vc && $abstract instanceof VisualComposerComponent){
+		if( $abstract instanceof VisualComposerComponent ){
 			$this->vc_components[] = $abstract;
 		}
 	}
