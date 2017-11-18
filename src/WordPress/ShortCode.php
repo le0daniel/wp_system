@@ -84,6 +84,7 @@ class ShortCode implements ShortCodeContract{
 	 * @return array
 	 */
 	public function toShortcode():array{
+		// Array [ name, callable ]
 		return [$this->slug,[$this,'render']];
 	}
 

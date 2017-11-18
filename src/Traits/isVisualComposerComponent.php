@@ -10,10 +10,10 @@ namespace le0daniel\System\Traits;
 
 
 use le0daniel\System\Helpers\Path;
+use le0daniel\System\Helpers\TwigFilters;
 use le0daniel\System\WordPress\VisualComposer\ParameterHelper;
 
 trait isVisualComposerComponent {
-
 	/**
 	 * @return string
 	 */
@@ -42,7 +42,6 @@ trait isVisualComposerComponent {
 			$this->createVisualComposerParams($parameter);
 		}
 
-
 		$data = [
 			/* Human Readable Name */
 			'name'=>$this->name,
@@ -55,15 +54,22 @@ trait isVisualComposerComponent {
 
 			/* Backery builder */
 			'class'=>$this->slug,
+
+			/* Not Manditory */
 			'show_settings_on_create'=>true,
-			'category'=>$this->categorie,
-			//'group'=>'',
-			//'icon'=>'',
-			//'custom_markup'=>'',
+			'category'=>$this->category,
+			'group'=>   $this->get('group'),
+			'icon'=>    $this->get('icon'),
+			'weight'=>  $this->get('weight'),
 
 			/* Bind Parameters */
 			'params'=> $parameter->toArray(),
 		];
+
+		/* Merge with additional params */
+		if(isset($this->vc_params)){
+			$data = array_merge($this->vc_params,$data);
+		}
 
 		/* Cache */
 		if( ! WP_DEBUG ){
@@ -71,6 +77,15 @@ trait isVisualComposerComponent {
 		}
 
 		return $data;
+	}
+
+	/**
+	 * @param $key
+	 *
+	 * @return null
+	 */
+	protected function get($key){
+		return (isset($this->$key))?$this->$key:null;
 	}
 
 }

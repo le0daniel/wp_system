@@ -17,7 +17,6 @@ class Parameter {
 	protected $attributes = [
 		'param_name'=>null,
 		'type'=>null,
-
 		'heading'=>null,
 		'description'=>null,
 		'value'=>null,
@@ -89,12 +88,23 @@ class Parameter {
 	 * @return $this
 	 * @throws \Exception
 	 */
-	public function addDefaultValue($array_or_string){
+	public function addValue($array_or_string){
 		if( ! is_string($array_or_string) && !is_array($array_or_string) ){
 			throw new \Exception('The default value must be of type string | array');
 		}
 		$this->attributes['value']= $array_or_string;
 		return $this;
+	}
+
+	/**
+	 * Deprecated! Do NOT US
+	 *
+	 * @param $value_DEPRECATED
+	 *
+	 * @return Parameter
+	 */
+	public function addDefaultValue($value_DEPRECATED){
+		return $this->addValue($value_DEPRECATED);
 	}
 
 	/**
@@ -125,6 +135,20 @@ class Parameter {
 	 */
 	protected function filterArray($element){
 		return ! is_null($element);
+	}
+
+	/**
+	 * Used to set a key value pair which is not yet available in the
+	 * Builder!
+	 *
+	 * @param string $key
+	 * @param $value
+	 *
+	 * @return $this
+	 */
+	public function set(string $key,$value){
+		$this->attributes[$key]=$value;
+		return $this;
 	}
 
 	/**

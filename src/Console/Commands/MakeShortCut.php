@@ -48,6 +48,20 @@ class MakeShortCut extends Command
 	protected $is_vc_component = false;
 
 	/**
+	 * List of variables to be set by the controller
+	 * for a VC component
+	 *
+	 * @var array
+	 */
+	protected $vc_required_variables = [
+		'category'      =>'%String%',
+		'description'   =>'%String%',
+		'group'         =>'%String%',
+		'icon'          =>'%String%',
+		'weight'        =>'%Int%',
+	];
+
+	/**
 	 *
 	 */
 	protected function configure()
@@ -207,8 +221,12 @@ class MakeShortCut extends Command
 			$traits[] = 'isVisualComposerComponent';
 
 			$content[] = PHP_EOL;
-			$content[] = 'protected $categorie   = "";';
-			$content[] = 'protected $description = "";';
+
+			/* Show all required Variables */
+			foreach($this->vc_required_variables as $name=>$value){
+				$content[] = sprintf('protected $%s   = "%s";',$name,$value);
+			}
+
 			$content[] = PHP_EOL;
 			$content[] = File::generatePhpMethod(
 				'createVisualComposerParams',
