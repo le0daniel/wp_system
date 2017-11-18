@@ -56,7 +56,7 @@ class Kernel implements KernelContract {
 		else{
 			$whoops->pushHandler(function($e){
 				/** @var Logger $logger */
-				$logger = $this->container->get('log');
+				$logger = $this->container->get(Logger::class);
 				$logger->emergency('Error',$e);
 
 				try{
