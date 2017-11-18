@@ -13,6 +13,7 @@ use Illuminate\Container\Container;
 use le0daniel\System\Contracts\Kernel as KernelContract;
 use le0daniel\System\WordPress\Context;
 use Monolog\Logger;
+use Whoops\Handler\Handler;
 use Whoops\Handler\PrettyPageHandler;
 use Whoops\Run;
 
@@ -54,10 +55,11 @@ class Kernel implements KernelContract {
 
 		}
 		else{
+			/** !TODO: Correct error handling */
 			$whoops->pushHandler(function(\Exception $e){
 				/** @var Logger $logger */
 				$logger = $this->container->get(Logger::class);
-				$logger->emergency('Error: '.$e->getMessage(),$e->getTraceAsString());
+				$logger->emergency('Error: '.$e->getMessage(),['trace'=>$e->getTraceAsString()]);
 
 				try{
 					view('@pages/500.twig');
@@ -66,6 +68,7 @@ class Kernel implements KernelContract {
 					die();
 				}
 
+				return Handler::QUIT;
 			});
 		}
 
