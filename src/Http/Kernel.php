@@ -54,10 +54,10 @@ class Kernel implements KernelContract {
 
 		}
 		else{
-			$whoops->pushHandler(function($e){
+			$whoops->pushHandler(function(\Exception $e){
 				/** @var Logger $logger */
 				$logger = $this->container->get(Logger::class);
-				$logger->emergency('Error',$e);
+				$logger->emergency('Error: '.$e->getMessage(),$e->getTraceAsString());
 
 				try{
 					view('@pages/500.twig');
