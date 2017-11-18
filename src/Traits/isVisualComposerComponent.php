@@ -44,13 +44,13 @@ trait isVisualComposerComponent {
 
 		$data = [
 			/* Human Readable Name */
-			'name'=>$this->name,
+			'name'=>$this->translate('name'),
 
 			/* Shortcode Slug (ID) */
 			'base'=>$this->slug,
 
 			/* Element Description */
-			'description'=>$this->description,
+			'description'=>$this->translate('name'),
 
 			/* Backery builder */
 			'class'=>$this->slug,

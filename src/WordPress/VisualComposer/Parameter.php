@@ -9,7 +9,26 @@
 namespace le0daniel\System\WordPress\VisualComposer;
 
 
+use le0daniel\System\Helpers\Language;
+
 class Parameter {
+
+	/**
+	 * @var bool
+	 */
+	protected $autotranslate = true;
+
+	/**
+	 * Contains all keys which are required!
+	 *
+	 * @var array
+	 */
+	protected $required = [
+		'param_name',
+		'type',
+		'heading',
+		'description'
+	];
 
 	/**
 	 * @var array
@@ -21,6 +40,7 @@ class Parameter {
 		'description'=>null,
 		'value'=>null,
 		'dependency'=>null,
+		'group'=>null,
 	];
 
 	/**
@@ -45,6 +65,16 @@ class Parameter {
 	];
 
 	/**
+	 * Disable Translation
+	 *
+	 * @return $this
+	 */
+	public function disableAutotranslate(){
+		$this->autotranslate = false;
+		return $this;
+	}
+
+	/**
 	 * Parameter constructor.
 	 *
 	 * @param string $name
@@ -63,12 +93,22 @@ class Parameter {
 	}
 
 	/**
+	 * @param string $name
+	 *
+	 * @return $this
+	 */
+	public function setGroup(string $name){
+		$this->attributes['group']=$name;
+		return $this;
+	}
+
+	/**
 	 * @param string $description
 	 *
 	 * @return $this
 	 */
 	public function addDescription(string $description){
-		$this->attributes['description']=$description;
+		$this->attributes['description']= $description;
 		return $this;
 	}
 
@@ -78,7 +118,7 @@ class Parameter {
 	 * @return $this
 	 */
 	public function addHeading(string $header){
-		$this->attributes['heading']=$header;
+		$this->attributes['heading']= $header;
 		return $this;
 	}
 
@@ -157,6 +197,36 @@ class Parameter {
 	 * @return array
 	 */
 	public function toArray():array{
-		return array_filter($this->attributes,[$this,'filterArray']);
+		/* Filter input */
+		$filtered = array_filter($this->attributes,[$this,'filterArray']);
+
+		$this->checkRequiredKeys($filtered);
+
+		/* Translate */
+		if($this->autotranslate){
+
+			foreach(['heading','description'] as $key){
+				$filtered[$key] = Language::translate($filtered[$key]);
+			}
+
+		}
+
+		return $filtered;
+	}
+
+	/**
+	 * @param array $array
+	 *
+	 * @throws \Exception
+	 */
+	protected function checkRequiredKeys(array $array){
+
+		/* Check for required keys */
+		foreach($this->required as $key){
+			if( ! array_key_exists($key,$array) ){
+				throw new \Exception('The parameter '.$key.' must be set!');
+			}
+		}
+
 	}
 }

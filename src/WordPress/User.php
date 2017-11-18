@@ -8,15 +8,12 @@
 
 namespace le0daniel\System\WordPress;
 
-use Timber\User as TimberUser;
-
-class User extends TimberUser{
+class User{
 
 	/**
 	 * User constructor.
 	 */
 	public function __construct() {
-		parent::__construct();
 	}
 
 }

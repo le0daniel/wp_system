@@ -22,9 +22,6 @@ class Context implements CastArray {
 	public $site = Site::class;
 	public $page = Page::class;
 	public $wp_title = '';
-	//public $user;
-
-	//public $request;
 
 	/**
 	 * Context constructor.
@@ -33,7 +30,6 @@ class Context implements CastArray {
 		/* Resolve */
 		$this->site = resolve($this->site);
 		$this->page = resolve($this->page);
-		$this->wp_title = 'Generate Title!';
 	}
 
 	/**
@@ -44,7 +40,6 @@ class Context implements CastArray {
 		return [
 			'site'=>$this->site,
 			'page'=>$this->page,
-			'wp_title'=>$this->wp_title,
 		];
 	}
 

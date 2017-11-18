@@ -9,6 +9,7 @@
 namespace le0daniel\System\WordPress;
 
 use le0daniel\System\Contracts\ShortCode as ShortCodeContract;
+use le0daniel\System\Helpers\Language;
 use le0daniel\System\WordPress\VisualComposer\ParameterHelper;
 
 class ShortCode implements ShortCodeContract{
@@ -37,6 +38,11 @@ class ShortCode implements ShortCodeContract{
 	 * @var string
 	 */
 	protected $extension = 'twig';
+
+	/**
+	 * @var bool
+	 */
+	protected $autotranslate = true;
 
 	/**
 	 * Should the WP Context Be included to render the Shortcut
@@ -105,5 +111,27 @@ class ShortCode implements ShortCodeContract{
 
 		/* IMPORTANT: A shortcode has Access to the View WP Context! */
 		return view()->render( $this->getTemplateName(), $attributes, $this->render_with_context);
+	}
+
+	/**
+	 * @param $key
+	 *
+	 * @return string
+	 * @throws \Exception
+	 */
+	protected function translate($key){
+
+		/* Check if isset */
+		if(!isset($this->$key)){
+			/* Throw exception if there was no found key for this value! */
+			throw new \Exception('Parameter ['.$key.'] not found in '.get_called_class().'!');
+		}
+
+		/* If no translation */
+		if( ! $this->autotranslate ){
+			return $this->$key;
+		}
+
+		return Language::translate($this->$key);
 	}
 }

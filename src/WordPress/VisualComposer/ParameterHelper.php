@@ -39,8 +39,8 @@ class ParameterHelper {
 	 * @return Parameter
 	 */
 	public function addTextAreaHtml():Parameter{
-		$this->params['content_html'] = new Parameter('content_html','textarea_html');
-		return $this->params['content_html'];
+		$this->params['content'] = new Parameter('content','textarea_html');
+		return $this->params['content'];
 	}
 
 	/**
