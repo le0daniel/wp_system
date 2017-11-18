@@ -40,40 +40,21 @@ class Kernel implements KernelContract {
 		$this->container->alias(Context::class,'wp.context');
 
 		/* Create The error handler */
-		$whoops = $this->registerErrorHandler();
-
-		$this->container->instance('error.handler',$whoops);
+		$this->registerErrorHandler();
+		
 	}
 
 	protected function registerErrorHandler(){
 
-		$whoops = $this->container->make(Run::class);
+
 		if( WP_DEBUG ){
-
+			$whoops = $this->container->make(Run::class);
 			$whoops->pushHandler($this->container->make(PrettyPageHandler::class));
+			$whoops->register();
+			$this->container->instance('error.handler',$whoops);
 			assert_options(ASSERT_ACTIVE, true);
-
-		}
-		else{
-			/** !TODO: Correct error handling */
-			$whoops->pushHandler(function(\Exception $e){
-				/** @var Logger $logger */
-				$logger = $this->container->get(Logger::class);
-				$logger->emergency('Error: '.$e->getMessage(),['trace'=>$e->getTraceAsString()]);
-
-				try{
-					view('@pages/500.twig');
-				}catch (\Exception $e){
-					echo 'We encountered a Fatal Error!';
-					die();
-				}
-
-				return Handler::QUIT;
-			});
 		}
 
-		$whoops->register();
-		return $whoops;
 	}
 
 	public function run() {
