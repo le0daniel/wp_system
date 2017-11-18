@@ -20,7 +20,8 @@
     "Timber/Timber": "^1.5",
     "monolog/monolog": "^1.23",
     "illuminate/pipeline": "^5.5",
-    "symfony/console": "^3.3"
+    "symfony/console": "^3.3",
+    "filp/whoops": "^2.1"
   },
   "autoload":{
     "psr-4": {
