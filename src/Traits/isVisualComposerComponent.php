@@ -9,19 +9,43 @@
 namespace le0daniel\System\Traits;
 
 
+use le0daniel\System\Helpers\Language;
 use le0daniel\System\Helpers\Path;
 use le0daniel\System\Helpers\TwigFilters;
 use le0daniel\System\WordPress\VisualComposer\ParameterHelper;
 
 trait isVisualComposerComponent {
 	/**
+	 * Gets the cache path
+	 *
 	 * @return string
 	 */
 	protected function getFullCachePath():string{
+
 		$cache_name = md5($this->name.$this->slug);
 		$cache_extension = '.serialized.vc';
+
 		$full_cache_path = Path::cachePath('vc/'.$cache_name.$cache_extension);
 		return $full_cache_path;
+
+	}
+
+	/**
+	 * Checks if file is cached
+	 *
+	 * @return bool
+	 */
+	protected function isCached(): bool {
+		return (file_exists($this->getFullCachePath()) );
+	}
+
+	/**
+	 * Checks if it should cache the config
+	 *
+	 * @return bool
+	 */
+	protected function shouldCache(): bool {
+		return (! WP_DEBUG );
 	}
 
 	/**
@@ -30,7 +54,7 @@ trait isVisualComposerComponent {
 	public function toVisualComposer():array{
 
 		/* Get from cache! */
-		if( ! WP_DEBUG && file_exists($this->getFullCachePath())){
+		if( $this->shouldCache() && $this->isCached() ){
 			return unserialize( file_get_contents($this->getFullCachePath()) );
 		}
 
@@ -44,26 +68,26 @@ trait isVisualComposerComponent {
 
 		$data = [
 			/* Human Readable Name */
-			'name'=>$this->translate('name'),
+			'name'=>                    Language::translate( $this->name ),
 
-			/* Shortcode Slug (ID) */
-			'base'=>$this->slug,
+			/* Shortcode Tag Name: default is slug */
+			'base'=>                    $this->getTagName(),
 
 			/* Element Description */
-			'description'=>$this->translate('name'),
+			'description'=>             Language::translate( $this->description ),
+			'category'=>                Language::translate( $this->category ),
 
 			/* Backery builder */
-			'class'=>$this->slug,
+			'class'=>                   $this->getTagName(),
 
 			/* Not Manditory */
-			'show_settings_on_create'=>true,
-			'category'=>$this->category,
-			'group'=>   $this->get('group'),
-			'icon'=>    $this->get('icon'),
-			'weight'=>  $this->get('weight'),
+			'show_settings_on_create'=> true,
+			'group'=>                   $this->get('group'),
+			'icon'=>                    $this->get('icon'),
+			'weight'=>                  $this->get('weight'),
 
 			/* Bind Parameters */
-			'params'=> $parameter->toArray(),
+			'params'=>                  $parameter->toArray(),
 		];
 
 		/* Merge with additional params */
@@ -71,12 +95,26 @@ trait isVisualComposerComponent {
 			$data = array_merge($this->vc_params,$data);
 		}
 
+		/* Filter empty values! */
+		$data = array_filter($data,[$this,'filterDataArray']);
+
 		/* Cache */
-		if( ! WP_DEBUG ){
+		if( $this->shouldCache() ){
 			file_put_contents( $this->getFullCachePath(), serialize($data) );
 		}
 
 		return $data;
+	}
+
+	/**
+	 * Filters the data array
+	 *
+	 * @param $item
+	 *
+	 * @return bool
+	 */
+	protected function filterDataArray($item):bool{
+		return ( ! is_null($item) );
 	}
 
 	/**

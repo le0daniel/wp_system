@@ -213,6 +213,7 @@ class MakeShortCut extends Command
 		$interfaces = [];
 		$traits = [];
 		$content = [
+			PHP_EOL,
 			sprintf('protected $name = \'%s\';',$this->shortcut['name']),
 			sprintf('protected $slug = \'%s\';',$this->shortcut['slug']),
 		];
@@ -220,21 +221,52 @@ class MakeShortCut extends Command
 			$interfaces[] = 'VisualComposerComponent';
 			$traits[] = 'isVisualComposerComponent';
 
-			$content[] = PHP_EOL;
+			$content[] = '';
+			$content = array_merge($content,File::generateCommentBlockArray([
+				'Visual Composer Specific Settings',
+				'',
+				'Category, Description and Name are translated by default',
+			]));
 
+
+			$parameter_lenght = max(array_map('strlen', $this->vc_required_variables));
 			/* Show all required Variables */
 			foreach($this->vc_required_variables as $name=>$value){
-				$content[] = sprintf('protected $%s   = "%s";',$name,$value);
+				$content[] = sprintf('protected $%s = "%s";',str_pad($name,($parameter_lenght + 3),' '),$value);
 			}
 
 			$content[] = PHP_EOL;
-			$content[] = File::generatePhpMethod(
+			$content = array_merge($content,File::generateCommentBlockArray([
+				'Add parameters to your component in a fluid way',
+				'using the Parameter builder'.PHP_EOL,
+				'Important, this configuration is cached if',
+				'WP_DEBUG is false. Clear the cache after a',
+				'change! ',
+				'user$ php console clear:cache:vc',
+				'',
+				'@param ParameterHelper $param',
+				'',
+				'@return void'
+			]));
+			$content = array_merge($content,File::generatePhpMethod(
 				'createVisualComposerParams',
 				'public',
 				[
 					'ParameterHelper $param'
-				]
-			);
+				],
+				false,
+				File::generateCommentBlockArray([
+					'Usage: $param->add%Type%(name) returns a Parameter object',
+					'',
+					'If your parameter option is not available by default use',
+					'the set method: set(string key,value)',
+					'',
+					'Important: addHeading, addDescription are required!',
+					'',
+					'Translation is on by default for heading and description',
+					'Disable using disableAutotranslate()'
+				])
+			));
 		}
 
 		$header = File::generatePhpFileHeader(

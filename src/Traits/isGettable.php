@@ -27,17 +27,20 @@ trait isGettable {
 	 */
 	public function __get( $name ) {
 
+		/* Getter method getNameAttribute() */
+		$getter = $this->getterName($name);
+
 		/**
 		 * Call getter with value
 		 */
-		if( method_exists($this,$this->getterName($name)) ){
-			return $this->{$this->getterName($name)}(
+		if( method_exists($this,$getter) ){
+			return $this->{$getter}(
 				array_key_exists($name,$this->attributes)?$this->attributes[$name]:null
 			);
 		}
 
 		/**
-		 *
+		 * Return Value
 		 */
 		if( array_key_exists($name,$this->attributes) ){
 			return $this->attributes[$name];

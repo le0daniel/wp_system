@@ -40,11 +40,6 @@ class ShortCode implements ShortCodeContract{
 	protected $extension = 'twig';
 
 	/**
-	 * @var bool
-	 */
-	protected $autotranslate = true;
-
-	/**
 	 * Should the WP Context Be included to render the Shortcut
 	 *
 	 * @var bool
@@ -80,8 +75,17 @@ class ShortCode implements ShortCodeContract{
 	 *
 	 * @return string
 	 */
-	protected function getTemplateName():string{
+	protected function getTemplatePath():string{
 		return sprintf('%s/%s.%s',$this->namespace,$this->slug,$this->extension);
+	}
+
+	/**
+	 * Returns the Tag name of the shortcode
+	 *
+	 * @return string
+	 */
+	protected function getTagName(): string {
+		return $this->slug;
 	}
 
 	/**
@@ -89,9 +93,11 @@ class ShortCode implements ShortCodeContract{
 	 *
 	 * @return array
 	 */
-	public function toShortcode():array{
-		// Array [ name, callable ]
-		return [$this->slug,[$this,'render']];
+	public function toShortcode(): array {
+		return [
+			$this->getTagName(),
+			[$this,'render']
+		];
 	}
 
 	/**
@@ -100,7 +106,7 @@ class ShortCode implements ShortCodeContract{
 	 *
 	 * @return string
 	 */
-	public function render($attributes = [],$content = null):string{
+	public function render($attributes = [],$content = null): string {
 
 		if(!is_array($attributes)){
 			$attributes = ['given'=>$attributes];
@@ -109,29 +115,7 @@ class ShortCode implements ShortCodeContract{
 		/* Always overwrite the content */
 		$attributes['content']=$content;
 
-		/* IMPORTANT: A shortcode has Access to the View WP Context! */
-		return view()->render( $this->getTemplateName(), $attributes, $this->render_with_context);
-	}
-
-	/**
-	 * @param $key
-	 *
-	 * @return string
-	 * @throws \Exception
-	 */
-	protected function translate($key){
-
-		/* Check if isset */
-		if(!isset($this->$key)){
-			/* Throw exception if there was no found key for this value! */
-			throw new \Exception('Parameter ['.$key.'] not found in '.get_called_class().'!');
-		}
-
-		/* If no translation */
-		if( ! $this->autotranslate ){
-			return $this->$key;
-		}
-
-		return Language::translate($this->$key);
+		/* IMPORTANT: A shortcode does not have access to the context by default! */
+		return view()->render( $this->getTemplatePath(), $attributes, $this->render_with_context);
 	}
 }
