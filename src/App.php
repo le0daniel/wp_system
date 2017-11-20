@@ -11,7 +11,13 @@ namespace le0daniel\System;
 
 use Carbon\Carbon;
 use Illuminate\Container\Container;
+use le0daniel\System\Contracts\ShortCode;
 use le0daniel\System\Helpers\Path;
+use le0daniel\System\WordPress\MetaField;
+use le0daniel\System\WordPress\Page;
+use le0daniel\System\WordPress\Post;
+use le0daniel\System\WordPress\Site;
+use le0daniel\System\WordPress\User;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
@@ -183,6 +189,21 @@ class App {
 			$logger->setFormatter(new LineFormatter(null, null, false, true));
 		});
 
+	}
+
+	/**
+	 * Register Aliases
+	 */
+	protected function registerAliases(){
+
+		/* Aliases */
+		$this->container->alias(Context::class,     'wp.context');
+		$this->container->alias(MetaField::class,   'wp.metafield');
+		$this->container->alias(Page::class,        'wp.page');
+		$this->container->alias(Post::class,        'wp.post');
+		$this->container->alias(ShortCode::class,   'wp.shortcode');
+		$this->container->alias(Site::class,        'wp.site');
+		$this->container->alias(User::class,        'wp.user');
 	}
 
 	/**

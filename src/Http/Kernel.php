@@ -37,7 +37,6 @@ class Kernel implements KernelContract {
 
 		/* Register the context as singleton */
 		$this->container->singleton(Context::class);
-		$this->container->alias(Context::class,'wp.context');
 
 		/* Create The error handler */
 		$this->registerErrorHandler();
