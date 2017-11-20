@@ -82,6 +82,47 @@ class CreateTheme extends Command{
 
 		/* Rename the theme */
 		rename(Path::themesPath('skeletton'),Path::themesPath($this->slug));
+
+		/*  */
+		$output->writeln('Theme: <info>'.$this->name.'</info> successfully installed');
+
+		/* Check .env file */
+		if( ! file_exists($this->root_dir.'/.env')){
+			return;
+		}
+
+		$dotenv = file_get_contents($this->root_dir.'/.env');
+
+		/* Configure .env */
+		$question = new Question('Please enter the Database Username [<info>leodanielDev</info>]: ', 'leodanielDev');
+		$question->setNormalizer([$this,'wrapInQuotes']);
+		$db['database_user']= $helper->ask($input, $output, $question);
+
+		$question = new Question('Please enter the Password for User '.$db['username'].' [<info>hidden</info>]: ', '');
+		$question->setNormalizer([$this,'wrapInQuotes']);
+		$question->setHidden(true);
+		$db['database_password']= $helper->ask($input, $output, $question);
+
+		$question = new Question('Please enter the Database Name [<info>WordpressDB</info>]: ', 'WordpressDB');
+		$question->setNormalizer([$this,'wrapInQuotes']);
+		$db['database_name']= $helper->ask($input, $output, $question);
+
+		$question = new Question('Please enter the host of the DB [<info>127.0.0.1</info>]: ', '127.0.0.1');
+		$question->setNormalizer([$this,'wrapInQuotes']);
+		$db['database_host']= $helper->ask($input, $output, $question);
+
+		/* Replace Values and write config file */
+		$dotenv = str_replace(array_keys($db),array_values($db),$dotenv);
+		file_put_contents($this->root_dir.'/.env',$dotenv);
+
+		/* Check Database */
+		$connection = mysqli_connect($db['database_host'],$db['database_user'],$db['database_password'],$db['database_name']);
+		if(!$connection){
+			$output->writeln('<error>Unable to connect to database ('.$db['database_name'].')!</error>');
+		}
+
+		/* Done */
+		$output->writeln('Setup done! Use WP cli to complete installation!');
 	}
 
 	/**
@@ -100,6 +141,19 @@ class CreateTheme extends Command{
 	 */
 	public function normalizeName($value){
 		return rtrim(trim($value));
+	}
+
+	/**
+	 * @param $value
+	 *
+	 * @return string
+	 */
+	public function wrapInQuotes($value){
+		if(empty($value) || ! is_string($value) ){
+			return $value;
+		}
+
+		return "'". addslashes($value) ."'";
 	}
 
 	/**
