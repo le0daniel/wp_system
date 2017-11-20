@@ -13,6 +13,7 @@ use Carbon\Carbon;
 use Illuminate\Container\Container;
 use le0daniel\System\Contracts\ShortCode;
 use le0daniel\System\Helpers\Path;
+use le0daniel\System\WordPress\Context;
 use le0daniel\System\WordPress\MetaField;
 use le0daniel\System\WordPress\Page;
 use le0daniel\System\WordPress\Post;
