@@ -19,9 +19,15 @@ use Timber\Request;
  */
 class Context implements CastArray {
 
+	/**
+	 * @var Site|string
+	 */
 	public $site = Site::class;
+
+	/**
+	 * @var Page|string
+	 */
 	public $page = Page::class;
-	public $wp_title = '';
 
 	/**
 	 * Context constructor.

@@ -96,35 +96,24 @@ class App {
 			return false;
 		}
 
-		/**
-		 * Include the Resolve Helper
-		 */
-		if( ! function_exists('resolve')){
-			require __DIR__.'/functions/resolve.php';
-		}
-
-		/**
-		 * Include the View Helper
-		 */
-		if( ! function_exists('view')){
-			require __DIR__.'/functions/view.php';
-		}
-
 		/* Set Dir */
 		if( empty($root_dir) ){
 			throw new \Exception('Root dir required to boot!');
 		}
+
+		require __DIR__.'/functions/paths.php';
+		require __DIR__.'/functions/app.php';
+		require __DIR__.'/functions/resolve.php';
+		require __DIR__.'/functions/view.php';
+
+		/**
+		 * Set Statics
+		 */
 		self::$root_dir = realpath($root_dir);
 		Path::$root_dir = self::$root_dir;
 
 		/* Check dirs */
 		Path::checkRequiredDirs();
-
-		/* Require the path functions */
-		require __DIR__.'/functions/paths.php';
-
-		/* Require the App function helper */
-		require __DIR__.'/functions/app.php';
 
 		return true;
 	}
