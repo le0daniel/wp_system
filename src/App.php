@@ -190,6 +190,7 @@ class App {
 			$logger->setFormatter(new LineFormatter(null, null, false, true));
 		});
 
+		$this->registerAliases();
 	}
 
 	/**
