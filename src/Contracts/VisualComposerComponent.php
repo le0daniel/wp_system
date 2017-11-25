@@ -17,6 +17,12 @@ interface VisualComposerComponent {
 	 * @return array
 	 */
 	public function toVisualComposer():array;
+
+	/**
+	 * @param ParameterHelper $param
+	 *
+	 * @return void
+	 */
 	public function createVisualComposerParams(ParameterHelper $param);
 
 }

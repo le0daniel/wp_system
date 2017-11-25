@@ -13,4 +13,5 @@ interface ShortCode {
 
 	public function toShortcode():array;
 	public function render($attributes = [],$content = null):string;
+
 }
