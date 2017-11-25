@@ -22,12 +22,17 @@ class Context implements CastArray {
 	/**
 	 * @var Site|string
 	 */
-	public $site = Site::class;
+	public $site = 'wp.site';
 
 	/**
 	 * @var Page|string
 	 */
-	public $page = Page::class;
+	public $page = 'wp.page';
+
+	/**
+	 * @var User|string
+	 */
+	public $user = 'wp.user';
 
 	/**
 	 * Context constructor.
@@ -36,16 +41,21 @@ class Context implements CastArray {
 		/* Resolve */
 		$this->site = resolve($this->site);
 		$this->page = resolve($this->page);
+		$this->user = resolve($this->user);
 	}
 
 	/**
+	 * Do additional stuff before returning as array!
+	 *
 	 * @return array
 	 */
 	public function toArray():array
 	{
+
 		return [
 			'site'=>$this->site,
 			'page'=>$this->page,
+			'user'=>$this->user,
 		];
 	}
 

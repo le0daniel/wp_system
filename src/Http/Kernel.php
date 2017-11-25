@@ -33,6 +33,9 @@ class Kernel implements KernelContract {
 		$this->container = $container;
 	}
 
+	/**
+	 * Boot
+	 */
 	public function boot() {
 
 		/* Register the context as singleton */
@@ -43,6 +46,9 @@ class Kernel implements KernelContract {
 		
 	}
 
+	/**
+	 * Register Error Handler for Debugging
+	 */
 	protected function registerErrorHandler(){
 
 
@@ -56,9 +62,8 @@ class Kernel implements KernelContract {
 
 	}
 
-	public function run() {
-
-
-
-	}
+	/**
+	 * Run the Application
+	 */
+	public function run() {}
 }

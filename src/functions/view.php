@@ -8,7 +8,7 @@
  */
 function view($template = null,$data = []){
 
-	$view = resolve(\le0daniel\System\View\View::class);
+	$view = resolve('view');
 
 	if(is_string($template)){
 		$view->show($template,$data);

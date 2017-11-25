@@ -12,6 +12,8 @@ namespace le0daniel\System\Traits;
 trait isGettable {
 
 	/**
+	 * getNameAttribute
+	 *
 	 * @param string $attribute_name
 	 *
 	 * @return string

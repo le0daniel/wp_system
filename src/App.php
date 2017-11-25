@@ -81,7 +81,7 @@ class App {
 		}
 
 		/* Include the container */
-		$this->container = require_once __DIR__ .'/bootstrap/ioc.php';
+		$this->container = $this->createContainer();
 
 		/* Bind Kernel */
 		$this->bindKernel();
@@ -89,6 +89,30 @@ class App {
 		/* Register and boot! */
 		$this->register();
 		$this->boot();
+	}
+
+	/**
+	 * Creates the Laravel 5 Container
+	 *
+	 * @return Container
+	 */
+	private function createContainer():Container{
+		$container = new Container();
+
+		/* Bind container itself */
+		$container->instance(Container::class, $container);
+		$container->bind(\Illuminate\Contracts\Container\Container::class,Container::class);
+
+		/**
+		 * Initial Bindings
+		 */
+		$container->singleton( HttpKernel::class );
+		$container->singleton( ConsoleKernel::class);
+
+		/**
+		 * Return the Instance of the container
+		 */
+		return $container;
 	}
 
 	/**
@@ -138,24 +162,6 @@ class App {
 	}
 
 	/**
-	 *
-	 */
-	public static function checkRequiredDirs(){
-
-		$required = [
-			'cache',
-		];
-
-		foreach ($required as $dir){
-			if(!file_exists(self::$root_dir.'/'.$dir)){
-				mkdir(self::$root_dir.'/'.$dir,0777,true);
-				file_put_contents(self::$root_dir.'/'.$dir.'/.htaccess','Deny from all');
-			}
-		}
-
-	}
-
-	/**
 	 * Bind The Kernel Interface to an Kernel
 	 */
 	protected function bindKernel(){
@@ -190,6 +196,7 @@ class App {
 			$logger->setFormatter(new LineFormatter(null, null, false, true));
 		});
 
+		/* Register all Aliases */
 		$this->registerAliases();
 	}
 
@@ -198,7 +205,7 @@ class App {
 	 */
 	protected function registerAliases(){
 
-		/* Aliases */
+		/* WP Aliases */
 		$this->container->alias(Context::class,     'wp.context');
 		$this->container->alias(MetaField::class,   'wp.metafield');
 		$this->container->alias(Page::class,        'wp.page');
@@ -206,16 +213,29 @@ class App {
 		$this->container->alias(ShortCode::class,   'wp.shortcode');
 		$this->container->alias(Site::class,        'wp.site');
 		$this->container->alias(User::class,        'wp.user');
+
+		/* Tools */
+		$this->container->alias(View::class,        'view');
+
+		/* System Aliases */
+		$this->container->alias(Kernel::class,      'system.kernel');
+		$this->container->alias(Logger::class,      'system.log');
+
 	}
 
 	/**
 	 * Boot
 	 */
 	protected function boot(){
-		/* Boot */
+		/**
+		 * Handle global stuff below, all the
+		 * rest should be handled by the dedicated
+		 * Kernel (Http/Console)
+		 */
 
-		/* Run the kernel */
-		$this->container->call('le0daniel\\System\\Contracts\\Kernel@boot');
+
+		/* Boot */
+		$this->container->call('system.kernel@boot');
 	}
 
 	/**
@@ -242,14 +262,14 @@ class App {
 	 * @return Logger
 	 */
 	public function log():Logger{
-		return $this->container->get(Logger::class);
+		return $this->container->get('system.log');
 	}
 
 	/**
 	 * Run the App
 	 */
 	public function run(){
-		return $this->container->call('le0daniel\\System\\Contracts\\Kernel@run');
+		return $this->container->call('system.kernel@run');
 	}
 
 	/**

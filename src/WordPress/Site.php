@@ -11,6 +11,14 @@ namespace le0daniel\System\WordPress;
 
 use le0daniel\System\Traits\isGettable;
 
+/**
+ * Class Site
+ * @package le0daniel\System\WordPress
+ *
+ * @property string $name
+ * @property string $description
+ * @property string $url
+ */
 class Site {
 	use isGettable;
 
@@ -20,15 +28,15 @@ class Site {
 	 * @var array
 	 */
 	protected $attributes = [
-		'name'          =>'',
-		'description'   =>'',
-		'wpurl'         =>'',
-		'url'           =>'',
-		'admin_email'   =>'',
-		'charset'       =>'',
-		'version'       =>'',
-		'html_type'     =>'',
-		'language'      =>'',
+		'name'              =>'',
+		'description'       =>'',
+		'wpurl'             =>'',
+		'url'               =>'',
+		'admin_email'       =>'',
+		'charset'           =>'',
+		'version'           =>'',
+		'html_type'         =>'',
+		'language'          =>'',
 		'stylesheet_url'    =>'',
 		'stylesheet_directory'=>'',
 		'template_url'      =>'',
