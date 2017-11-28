@@ -132,6 +132,15 @@ class App {
 			throw new \Exception('Root dir required to boot!');
 		}
 
+		/* Make Sure Expose PHP is disabled */
+		if( ! WP_DEBUG ){
+			header_remove('X-Powered-By');
+		}
+		else{
+			header('X-Debug-Mode: true');
+		}
+
+
 		require __DIR__.'/functions/paths.php';
 		require __DIR__.'/functions/app.php';
 		require __DIR__.'/functions/resolve.php';

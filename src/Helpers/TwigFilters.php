@@ -44,6 +44,19 @@ class TwigFilters {
 	}
 
 	/**
+	 * @param string $file
+	 *
+	 * @return string
+	 */
+	public static function mix(string $file):string{
+		/* Get the file name */
+		$file = Path::getMixFilename($file);
+
+		/* Construct URL */
+		return self::staticPath($file);
+	}
+
+	/**
 	 * @param string $content
 	 *
 	 * @return string

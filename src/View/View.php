@@ -50,6 +50,7 @@ class View {
 	protected $filters = [
 		'theme_path'    =>'\\le0daniel\\System\\Helpers\\TwigFilters::themePath',
 		'static_path'   =>'\\le0daniel\\System\\Helpers\\TwigFilters::staticPath',
+		'mix'           =>'\\le0daniel\\System\\Helpers\\TwigFilters::mix',
 
 		/* Translation filters */
 		't'             =>'\\le0daniel\\System\\Helpers\\TwigFilters::translate',

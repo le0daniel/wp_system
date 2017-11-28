@@ -29,6 +29,17 @@ class Path {
 	];
 
 	/**
+	 * @var array
+	 */
+	public static $mix_manifest;
+
+	/**
+	 * The Theme Name directory
+	 * @var string
+	 */
+	public static $theme_dirname = '';
+
+	/**
 	 * Check and create required dirs
 	 */
 	public static function checkRequiredDirs(){
@@ -56,6 +67,44 @@ class Path {
 	 */
 	public static function themesPath($path=''):string{
 		return rtrim(self::$root_dir.'/web/app/themes/'.$path,'/');
+	}
+
+	/**
+	 * Returns the mix file name
+	 *
+	 * @param string $file
+	 *
+	 * @return string
+	 */
+	public static function getMixFilename(string $file=''):string{
+		/* Normalize Filename */
+		$normalized_name =  '/' . rtrim( $file,'/');
+
+		/* Load Mix file */
+		if( ! isset(self::$mix_manifest)){
+			self::loadMixFile();
+		}
+
+		/* Return String */
+		if(array_key_exists( $normalized_name ,self::$mix_manifest)){
+			return self::$mix_manifest[ $normalized_name ];
+		}
+		return $file;
+	}
+
+	/**
+	 * Loads the Mix Manifest
+	 */
+	public static function loadMixFile(){
+		$manifest = [];
+
+		$path = self::themesPath(self::$theme_dirname.'/static/mix-manifest.json');
+
+		if( file_exists($path) ){
+			$manifest = json_decode(file_get_contents($path),true);
+		}
+
+		self::$mix_manifest = $manifest;
 	}
 
 	/**
