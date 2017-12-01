@@ -132,12 +132,18 @@ class App {
 			throw new \Exception('Root dir required to boot!');
 		}
 
+		/* Check if debug */
+		if( ! defined('WP_DEBUG') ){
+			define('WP_DEBUG',false);
+		}
+
 		/* Make Sure Expose PHP is disabled */
 		if( WP_DEBUG === true ){
 			header('X-Debug-Mode: true');
 		}
 		else{
-			header_remove('X-Powered-By');
+			self::removeHeaders();
+			self::setSecurityHeaders();
 		}
 
 		require __DIR__.'/functions/app.php';
@@ -154,6 +160,37 @@ class App {
 		Path::checkRequiredDirs();
 
 		return true;
+	}
+
+	/**
+	 * Removes all headers which could expose information
+	 */
+	public static function removeHeaders(){
+
+		/* Do not expose too much */
+		header_remove('X-Powered-By');
+		header_remove('Server');
+
+	}
+
+	/**
+	 * Set basic security headers
+	 */
+	public static function setSecurityHeaders(){
+
+		if( php_sapi_name() === 'cli' ){
+			return;
+		}
+
+		/* No iframe */
+		header('X-Frame-Options','SAMEORIGIN');
+
+		/* Currently disabled */
+		//header('Strict-Transport-Security','');
+		//header('Content-Security-Policy','script-src \'self\'') //https://scotthelme.co.uk/content-security-policy-an-introduction/;
+		//header('X-XSS-Protection','1; mode=block');
+		//header('X-Content-Type-Options','X-Content-Type-Options: nosniff');
+		//header('Referrer-Policy','no-referrer');
 	}
 
 	/**

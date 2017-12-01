@@ -9,10 +9,18 @@
 namespace le0daniel\System\WordPress;
 
 
-use Carbon\Carbon;
-use le0daniel\System\Helpers\TwigFunctions;
+use le0daniel\System\Traits\isGettable;
 
+/**
+ * Class Page
+ * @package le0daniel\System\WordPress
+ *
+ * @property array $posts
+ * @property array $body
+ * @property string $url
+ */
 class Page {
+	use isGettable;
 
 	/**
 	 * Accessible through magic method
@@ -22,12 +30,17 @@ class Page {
 	protected $attributes = [
 		'body'=>null,
 		'posts'=>null,
+		'url'=>null,
 	];
 
 	/**
 	 * Page constructor.
 	 */
 	public function __construct() {
+		/* Set Body */
+		$this->attributes['body']=[
+			'class'=> get_body_class(),
+		];
 	}
 
 	/**
@@ -35,28 +48,40 @@ class Page {
 	 *
 	 * @return array
 	 */
-	protected function loadPosts():array{
+	protected function getPostsAttribute($value):array{
 
-		$content = [];
+		/* Load */
+		if(is_null($value)){
 
-		while( have_posts() ){
-			/* Increment counter! */
-			the_post();
-			global $post;
+			$this->attributes['posts'] = [];
 
-			$content[] = new Post($post);
+			while( have_posts() ){
+				/* Increment counter! */
+				the_post();
+				global $post;
+
+				$this->attributes['posts'][] = new Post($post);
+			}
+
+			return $this->attributes['posts'];
 		}
 
-		return $content;
+		return $value;
 	}
 
 	/**
-	 * Get The Body Context
+	 * @param $value
+	 *
+	 * @return string
 	 */
-	protected function loadBody():array{
-		return [
-			'class'=> get_body_class(),
-		];
+	protected function getUrlAttribute($value):string{
+
+		if( $this->content() ){
+			return (string) get_permalink();
+		}
+
+		global $wp;
+		return home_url( $wp->request );
 	}
 
 	/**
@@ -71,36 +96,6 @@ class Page {
 		}
 
 		return false;
-	}
-
-	/**
-	 * Add getter support
-	 *
-	 * @param string $name
-	 *
-	 * @return bool|mixed
-	 */
-	public function __get( string $name ) {
-		if( ! array_key_exists($name,$this->attributes) ){
-			return false;
-		}
-
-		$loader =  camel_case('load '.$name);
-
-		if( is_null($this->attributes[$name]) && method_exists($this,$loader) ){
-			$this->attributes[$name] = $this->{ $loader }();
-		}
-
-		return $this->attributes[$name];
-	}
-
-	/**
-	 * @param $name
-	 *
-	 * @return bool
-	 */
-	public function __isset( $name ) {
-		return array_key_exists($name,$this->attributes);
 	}
 
 }
