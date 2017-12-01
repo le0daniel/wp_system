@@ -9,6 +9,7 @@
 namespace le0daniel\System\WordPress\Extend;
 
 use Illuminate\Container\Container;
+use le0daniel\System\Contracts\PostType;
 use le0daniel\System\Contracts\ShortCode;
 use le0daniel\System\Contracts\VisualComposerComponent;
 
@@ -18,6 +19,13 @@ class AddLogic {
 	 * @var Container
 	 */
 	protected $container;
+
+	/**
+	 * Array containing Post Types
+	 *
+	 * @var array
+	 */
+	protected $post_types = [];
 
 	/**
 	 * Array containing shortcode Classes!
@@ -47,21 +55,24 @@ class AddLogic {
 
 		/* Init all shortcodes */
 		array_walk($this->shortcodes,[$this,'makeShortCode']);
+		array_walk($this->post_types,[$this,'resolveIfNeeded']);
 
 		/* Add Actions */
-		add_action('init',[$this,'registerShortCodes']);
+		add_action('init',[$this,'init']);
 
 		/* Register Possible VS Components */
-		add_action( 'vc_before_init',[$this,'registerVisualComposerComponents']);
+		add_action('vc_before_init',[$this,'registerVisualComposerComponents']);
 	}
 
 	/**
-	 * Registers all ShortCodes!
+	 * Is called after WP init
 	 */
-	public function registerShortCodes(){
-
+	public function init(){
 		/* Make the Shortcodes */
 		array_walk($this->shortcodes,[$this,'registerShortCode']);
+
+		/* Register Post type */
+		array_walk($this->post_types,[$this,'registerPostType']);
 	}
 
 	/**
@@ -96,11 +107,34 @@ class AddLogic {
 	}
 
 	/**
+	 * @param $abstract
+	 */
+	protected function resolveIfNeeded(&$abstract){
+		if( ! is_object($abstract) ){
+			$abstract = $this->container->make($abstract);
+		}
+	}
+
+	/**
 	 * @param ShortCode $short_code
 	 */
 	protected function registerShortCode(ShortCode $short_code){
 		list($name,$callable) = $short_code->toShortcode();
 		add_shortcode($name,$callable);
+	}
+
+	/**
+	 * @param PostType $post_type
+	 */
+	protected function registerPostType(PostType $post_type){
+
+		list($name,$args) = $post_type->toPostType();
+
+		register_post_type(
+			$name,
+			$args
+		);
+
 	}
 
 	/**
