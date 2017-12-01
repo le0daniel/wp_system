@@ -78,4 +78,24 @@ class TwigFilters {
 		return Language::translate($key);
 	}
 
+	/**
+	 * Trims a string to a max lenght
+	 *
+	 * @param string $string
+	 * @param int $max_lenght
+	 *
+	 * @return string
+	 */
+	public static function eclipse(string $string,int $max_lenght = 55):string{
+
+		/* Add eclipse */
+		if( strlen($string) > $max_lenght ){
+			return substr($string,0,($max_lenght - 3)) . '...';
+		}
+
+		/* return */
+		return $string;
+
+	}
+
 }

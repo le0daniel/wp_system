@@ -56,6 +56,9 @@ class View {
 		't'             =>'\\le0daniel\\System\\Helpers\\TwigFilters::translate',
 		'translate'     =>'\\le0daniel\\System\\Helpers\\TwigFilters::translate',
 
+		/* Text Eclipse */
+		'eclipse'=>'\\le0daniel\\System\\Helpers\\TwigFilters::eclipse',
+
 		/* Shortcodes, may be vulnerable to xss, developer should handle that! */
 		'shortcode'     =>[
 			'\\le0daniel\\System\\Helpers\\TwigFilters::shortcode',

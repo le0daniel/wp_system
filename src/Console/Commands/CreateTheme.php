@@ -98,7 +98,7 @@ class CreateTheme extends Command{
 		$question->setNormalizer([$this,'wrapInQuotes']);
 		$db['database_user']= $helper->ask($input, $output, $question);
 
-		$question = new Question('Please enter the Password for User '.$db['username'].' [<info>hidden</info>]: ', '');
+		$question = new Question('Please enter the Password for User '.$db['database_user'].' [<info>hidden</info>]: ', '');
 		$question->setNormalizer([$this,'wrapInQuotes']);
 		$question->setHidden(true);
 		$db['database_password']= $helper->ask($input, $output, $question);
@@ -122,7 +122,9 @@ class CreateTheme extends Command{
 		}
 
 		/* Done */
-		$output->writeln('Setup done! Use WP cli to complete installation!');
+		$output->writeln('Setup done!');
+		$output->writeln('<info>Don\'t forget to dump composer autoloader</info>');
+		$output->writeln('Use WP cli to complete installation!');
 	}
 
 	/**
