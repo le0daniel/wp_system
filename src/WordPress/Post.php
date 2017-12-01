@@ -17,6 +17,12 @@ use le0daniel\System\Traits\isGettable;
  * Class Post
  * @package le0daniel\System\WordPress
  *
+ * @property int $id
+ * @property string $title
+ * @property string $content
+ * @property array $class
+ * @property array $links
+ * @property array $actions
  */
 class Post {
 	use isGettable;
