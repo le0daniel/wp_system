@@ -27,7 +27,7 @@ class Nav {
 	 * @param string $nav_name
 	 */
 	public function __construct($nav_name) {
-		$start = microtime(true);
+		7/$start = microtime(true);
 		$menu_locations = get_nav_menu_locations();
 		if( ! isset($menu_locations[$nav_name]) ){
 			return;
@@ -36,9 +36,9 @@ class Nav {
 		$this->menu = wp_get_nav_menu_items($menu_locations[$nav_name]);
 		$this->nestItems();
 
-		$d = microtime(true) - $start;
+		//$d = microtime(true) - $start;
 
-		dd($d);
+		//dd($d);
 	}
 
 	/**
