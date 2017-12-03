@@ -21,6 +21,7 @@ class PostType implements PostTypeContract {
 	protected $name = '';
 	protected $singular_name = '';
 	protected $args = [];
+	protected $public = true;
 
 	public function __construct() {
 
@@ -75,6 +76,7 @@ class PostType implements PostTypeContract {
 		$data['description']=               Language::translate($this->description);
 		$data['rewrite']['slug']=           $this->slug;
 		$data['public']=true;
+		$data['publicly_queryable']=$this->public;
 
 		return $data;
 	}

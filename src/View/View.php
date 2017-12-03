@@ -58,12 +58,6 @@ class View {
 
 		/* Text Eclipse */
 		'eclipse'=>'\\le0daniel\\System\\Helpers\\TwigFilters::eclipse',
-
-		/* Shortcodes, may be vulnerable to xss, developer should handle that! */
-		'shortcode'     =>[
-			'\\le0daniel\\System\\Helpers\\TwigFilters::shortcode',
-			['is_safe'=>['html']]
-		],
 	];
 
 	/**
@@ -75,6 +69,7 @@ class View {
 	protected $functions = [
 		'function'      =>'\\le0daniel\\System\\Helpers\\TwigFunctions::captureCallableOutput',
 		'field'         =>'\\le0daniel\\System\\Helpers\\TwigFunctions::getFieldValue',
+		'wp_nav'        =>'\\le0daniel\\System\\Helpers\\TwigFunctions::getWpNav'
 	];
 
 	/**

@@ -12,6 +12,7 @@ use Illuminate\Container\Container;
 use le0daniel\System\Contracts\PostType;
 use le0daniel\System\Contracts\ShortCode;
 use le0daniel\System\Contracts\VisualComposerComponent;
+use le0daniel\System\Helpers\Language;
 
 class AddLogic {
 
@@ -26,6 +27,13 @@ class AddLogic {
 	 * @var array
 	 */
 	protected $post_types = [];
+
+	/**
+	 * Array containing Key values of menues
+	 *
+	 * @var array
+	 */
+	protected $navs = [];
 
 	/**
 	 * Array containing shortcode Classes!
@@ -73,6 +81,9 @@ class AddLogic {
 
 		/* Register Post type */
 		array_walk($this->post_types,[$this,'registerPostType']);
+
+		/* Register Navs */
+		array_walk($this->navs,[$this,'registerNav']);
 	}
 
 	/**
@@ -135,6 +146,14 @@ class AddLogic {
 			$args
 		);
 
+	}
+
+	/**
+	 * @param string $readable_title
+	 * @param $slug
+	 */
+	protected function registerNav(string $readable_title,string $slug){
+		register_nav_menu($slug, Language::translate( $readable_title ) );
 	}
 
 	/**

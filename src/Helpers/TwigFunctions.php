@@ -36,6 +36,17 @@ class TwigFunctions {
 	}
 
 	/**
+	 * @param string $name
+	 *
+	 * @return false|string
+	 */
+	public static function getWpNav(string $name){
+		return wp_nav_menu([
+			'echo'=>false,
+		]);
+	}
+
+	/**
 	 * @param string $key
 	 * @param bool|int $id
 	 *
