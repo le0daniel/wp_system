@@ -116,10 +116,18 @@ class CreateTheme extends Command{
 		file_put_contents($this->root_dir.'/.env',$dotenv);
 
 		/* Check Database */
-		$connection = mysqli_connect($db['database_host'],$db['database_user'],$db['database_password'],$db['database_name']);
-		if(!$connection){
-			$output->writeln('<error>Unable to connect to database ('.$db['database_name'].')!</error>');
-		}
+		try{
+            $connection = mysqli_connect($db['database_host'],$db['database_user'],$db['database_password'],$db['database_name']);
+            if(!$connection){
+                throw new \Exception('Ups, no connection');
+            }
+        }
+        catch (\Exception $e){
+            $output->writeln('<error>Unable to connect to database ('.$db['database_name'].')!</error>');
+            $output->writeln('<error>Please check your .env file</error>');
+        }
+        $output->writeln('<info> > mysql: connected successfully!</info>');
+
 
 		/* Done */
 		$output->writeln('Setup done!');
