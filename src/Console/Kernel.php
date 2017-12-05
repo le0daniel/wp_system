@@ -13,6 +13,8 @@ use Illuminate\Container\Container;
 use le0daniel\System\Console\Commands\ClearCacheVC;
 use le0daniel\System\Console\Commands\MakePostType;
 use le0daniel\System\Console\Commands\MakeShortCut;
+use le0daniel\System\Console\Commands\TakeSiteOffline;
+use le0daniel\System\Console\Commands\TakeSiteOnline;
 use le0daniel\System\Contracts\Kernel as KernelContract;
 use Symfony\Component\Console\Application;
 
@@ -27,6 +29,9 @@ class Kernel implements KernelContract {
 		MakeShortCut::class,
 		ClearCacheVC::class,
 		MakePostType::class,
+
+		TakeSiteOffline::class,
+		TakeSiteOnline::class,
 	];
 
 	/**
