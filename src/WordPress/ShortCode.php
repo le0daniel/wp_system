@@ -115,7 +115,13 @@ class ShortCode implements ShortCodeContract{
 		/* Always overwrite the content */
 		$attributes['content']=$content;
 
+		/* Cache in plain HTML if it's without context */
+		$plain_cache = true;
+		if( $this->render_with_context ){
+			$plain_cache = false;
+		}
+
 		/* IMPORTANT: A shortcode does not have access to the context by default! */
-		return view()->render( $this->getTemplatePath(), $attributes, $this->render_with_context);
+		return view()->render( $this->getTemplatePath(), $attributes, $this->render_with_context, $plain_cache);
 	}
 }

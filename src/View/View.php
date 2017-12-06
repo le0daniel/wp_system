@@ -142,17 +142,14 @@ class View {
 		/* Load Twig */
 		$loader = new \Twig_Loader_Filesystem($this->root_dir);
 
-		/* Get config */
-		$config = $this->twig_config;
-
 		/* Set Cache */
-		$config['cache']=$this->twigCachePath();
+		$this->twig_config['cache']=$this->twigCachePath();
 		if(WP_DEBUG === true){
-			$config['cache']=false;
+			$this->twig_config['cache']=false;
 		}
 
 		/* Init Twig */
-		$this->twig = new \Twig_Environment($loader,$config);
+		$this->twig = new \Twig_Environment($loader,$this->twig_config);
 
 		/* Register Filters */
 		$this->registerTwigFiltersAndFunctions();
@@ -308,10 +305,11 @@ class View {
 	 * @param string $filename
 	 * @param array $data
 	 * @param bool $with_context
+	 * @param bool $force_plain_cache
 	 *
 	 * @return string
 	 */
-	public function render(string $filename,array $data=[], bool $with_context = true):string {
+	public function render(string $filename,array $data=[], bool $with_context = true, bool $force_plain_cache = false):string {
 
 		$data_to_render = $this->mergeData($data);
 
@@ -320,10 +318,53 @@ class View {
 			$data_to_render = $this->addContextToData($data_to_render);
 		}
 
-		return (string) $this->getTwig()->render(
+
+		if( $this->plain_cache || $force_plain_cache ){
+
+			$plain_cache = $this->getPlainCachePath($filename,$data_to_render);
+			if( file_exists($plain_cache) ){
+				$this->setDebugHeaders($plain_cache);
+				return (string) file_get_contents($plain_cache);
+			}
+
+		}
+
+		$html = (string) $this->getTwig()->render(
 			$filename,
 			$data_to_render
 		);
+
+		/* Cache */
+		if( isset($plain_cache) ){
+			file_put_contents($plain_cache,$html);
+		}
+
+		/* Gets Time */
+		$this->setDebugHeaders();
+
+		return $html;
+
+	}
+
+	/**
+	 * @param string $cache_file
+	 */
+	protected function setDebugHeaders(string $cache_file = ''){
+
+	}
+
+	/**
+	 * @param string $template
+	 * @param array $data
+	 *
+	 * @return string
+	 */
+	protected function getPlainCachePath(string $template,array $data):string {
+		/* Force Load Content! */
+		$this->context['page']->content();
+		$plain_cache_name = md5($template.serialize($data)).'.plain.html';
+		$cache_path = Path::cachePath('rendered/'.$plain_cache_name);
+		return $cache_path;
 	}
 
 	/**
@@ -333,6 +374,13 @@ class View {
 	 * @param array $data
 	 */
 	public function show(string $filename,array $data=[]){
+
+		if(WP_DEBUG){
+			header('X-Plain-Cache-Global: '. ( ($this->plain_cache )?'true':'false' ) );
+			header('X-Twig-Cache: '. ( ($this->twig_config['cache'])?$this->twig_config['cache']:'false' ) );
+			header('X-Up-Time: '.app()->getUpTime());
+		}
+
 		echo $this->render($filename,$data);
 	}
 
@@ -364,6 +412,7 @@ class View {
 	 * @return array
 	 */
 	protected function addContextToData(array $data):array{
+
 		return array_merge($data,$this->context);
 	}
 
