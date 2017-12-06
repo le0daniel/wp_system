@@ -27,7 +27,8 @@ class Nav {
 	 * @param string $nav_name
 	 */
 	public function __construct($nav_name) {
-		7/$start = microtime(true);
+
+		//$start = microtime(true);
 		$menu_locations = get_nav_menu_locations();
 		if( ! isset($menu_locations[$nav_name]) ){
 			return;
@@ -43,18 +44,23 @@ class Nav {
 
 	/**
 	 * Nest Items, Only support for 2 levels
+	 *
+	 * @param bool $nest
 	 */
-	public function nestItems(){
+	public function nestItems(bool $nest = false){
 
 		foreach ( $this->menu as $wp_item ) {
 
 			$item = new NavItem($wp_item);
 
-			if($item->parent && array_key_exists($item->parent,$this->items)){
-				$this->items[$item->parent]->addChildren($item);
+			/* ignore nested navs */
+			if( ! $nest && $item->parent){
 				continue;
 			}
 
+			/* TODO: Nest  */
+
+			/* Add to item! */
 			$this->items[$item->id] = $item;
 		}
 

@@ -132,13 +132,8 @@ class App {
 			throw new \Exception('Root dir required to boot!');
 		}
 
-		/* Check if debug */
-		if( ! defined('WP_DEBUG') ){
-			define('WP_DEBUG',false);
-		}
-
 		/* Make Sure Expose PHP is disabled */
-		if( WP_DEBUG === true ){
+		if( self::isDefinedOrDefine('WP_DEBUG',false) ){
 			header('X-Debug-Mode: true');
 		}
 		else{
@@ -156,10 +151,32 @@ class App {
 		self::$root_dir = realpath($root_dir);
 		Path::$root_dir = self::$root_dir;
 
-		/* Check dirs */
-		Path::checkRequiredDirs();
+		/**
+		 * Check dirs by default! Can be disabled in production!
+		 */
+		if( self::isDefinedOrDefine('DIR_CHECK',true) ){
+			Path::checkRequiredDirs();
+		}
 
 		return true;
+	}
+
+	/**
+	 * Defines or returns the value of a CONSTANT
+	 *
+	 * @param string $name
+	 * @param bool $default
+	 *
+	 * @return mixed
+	 */
+	public static function isDefinedOrDefine(string $name,bool $default = false){
+
+		/* Check if defined */
+		if( ! defined($name) ){
+			define($name,$default);
+		}
+
+		return constant($name);
 	}
 
 	/**
