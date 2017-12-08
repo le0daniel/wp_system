@@ -85,7 +85,8 @@ class View {
 	/**
 	 * @var array
 	 */
-	protected $context = [];
+	protected $context = 'wp.context';
+	protected $_context_set = false;
 
 	/**
 	 * The root dir for the view composer
@@ -252,11 +253,12 @@ class View {
 	 */
 	public function addContext($context){
 
-		if( ! empty($this->context) ){
+		if( $this->_context_set ){
 			throw new \Exception('Context can only be set once!');
 		}
 
 		$this->context = $context;
+		$this->_context_set = true;
 
 		return $this;
 	}
