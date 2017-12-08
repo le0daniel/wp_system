@@ -72,8 +72,8 @@ class Page {
 
 				$this->attributes['posts'][] = new Post( $post );
 			}
-			$post = null;
-			wp_reset_query();
+			//$post = null;
+			//wp_reset_query();
 		}
 
 		$this->_posts_loaded = true;
