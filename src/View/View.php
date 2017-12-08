@@ -381,8 +381,6 @@ class View {
 	 * @return string
 	 */
 	protected function getPlainCachePath(string $template,array $data):string {
-		/* Force Load Content! */
-		$this->context['page']->content();
 		$plain_cache_name = md5($template.serialize($data)).'.plain.html';
 		$cache_path = Path::cachePath('rendered/'.$plain_cache_name);
 		return $cache_path;

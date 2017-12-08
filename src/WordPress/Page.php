@@ -52,13 +52,13 @@ class Page {
 		];
 
 		$this->loadPosts();
+		$this->_posts_loaded = false;
 	}
 
 	/**
 	 * Load the posts
 	 */
 	protected function loadPosts(){
-
 		$start = microtime(true);
 
 		/* Load Posts */
@@ -73,6 +73,22 @@ class Page {
 
 		$this->_posts_loaded = true;
 		$this->_posts_load_time = microtime(true) - $start;
+	}
+
+	/**
+	 * @param $value
+	 *
+	 * @return array
+	 */
+	protected function getPostsAttribute($value){
+		/* Make sur posts exists */
+		if( empty($value) && ! $this->_posts_loaded ){
+			$this->loadPosts();
+			dd(have_posts());
+			return $this->attributes['posts'];
+		}
+
+		return $value;
 	}
 
 	/**
@@ -102,7 +118,7 @@ class Page {
 	 *
 	 * @return bool|Post
 	 */
-	protected function getContentAttribute(){
+	public function content(){
 
 		if(count($this->posts) === 1){
 			return $this->posts[0];

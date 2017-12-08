@@ -11,6 +11,7 @@ namespace le0daniel\System;
 
 use Carbon\Carbon;
 use Illuminate\Container\Container;
+use le0daniel\System\Contracts\AddLogicToWordpress;
 use le0daniel\System\Contracts\ShortCode;
 use le0daniel\System\Helpers\Path;
 use le0daniel\System\WordPress\Context;
@@ -274,6 +275,7 @@ class App {
 		$this->container->alias(ShortCode::class,   'wp.shortcode');
 		$this->container->alias(Site::class,        'wp.site');
 		$this->container->alias(User::class,        'wp.user');
+		$this->container->alias(AddLogicToWordpress::class,'wp.extend');
 
 		/* Tools */
 		$this->container->alias(View::class,        'view');
@@ -281,6 +283,9 @@ class App {
 		/* System Aliases */
 		$this->container->alias(Kernel::class,      'system.kernel');
 		$this->container->alias(Logger::class,      'system.log');
+
+		/* Make Singletons */
+		$this->container->singleton(Context::class);
 
 	}
 

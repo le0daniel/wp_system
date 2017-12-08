@@ -52,7 +52,7 @@ class Kernel implements KernelContract {
 	 * Register Bindings
 	 */
 	public function boot() {
-		$this->container->singleton('console',Application::class);
+		$this->container->singleton('system.console',Application::class);
 	}
 
 	/**
@@ -60,13 +60,12 @@ class Kernel implements KernelContract {
 	 */
 	public function run() {
 		/** @var Application $app */
-		$app = $this->container->make('console');
+		/*$app = $this->container->make('system.console');
 
-		/* Add commands */
 		array_walk($this->commands,function(string $abstract)use($app){
 			$app->add( $this->container->make($abstract) );
 		});
 
-		$app->run();
+		$app->run();*/
 	}
 }

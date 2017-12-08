@@ -9,12 +9,13 @@
 namespace le0daniel\System\WordPress\Extend;
 
 use Illuminate\Container\Container;
+use le0daniel\System\Contracts\AddLogicToWordpress;
 use le0daniel\System\Contracts\PostType;
 use le0daniel\System\Contracts\ShortCode;
 use le0daniel\System\Contracts\VisualComposerComponent;
 use le0daniel\System\Helpers\Language;
 
-class AddLogic {
+class AddLogic implements AddLogicToWordpress {
 
 	/**
 	 * @var Container
