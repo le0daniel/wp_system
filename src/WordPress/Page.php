@@ -52,7 +52,7 @@ class Page {
 		];
 
 		$this->loadPosts();
-		$this->_posts_loaded = false;
+		$this->_posts_loaded = true;
 	}
 
 	/**
@@ -83,9 +83,7 @@ class Page {
 	protected function getPostsAttribute($value){
 		/* Make sur posts exists */
 		if( empty($value) && ! $this->_posts_loaded ){
-			$this->loadPosts();
-			dd(have_posts());
-			return $this->attributes['posts'];
+			app()->log('Post attributes not loaded!');
 		}
 
 		return $value;
@@ -118,9 +116,9 @@ class Page {
 	 *
 	 * @return bool|Post
 	 */
-	public function content(){
+	public function getContentAttribute(){
 
-		if(count($this->posts) === 1){
+		if( count($this->posts) === 1){
 			return $this->posts[0];
 		}
 
