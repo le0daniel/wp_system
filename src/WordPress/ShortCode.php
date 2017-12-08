@@ -116,7 +116,7 @@ class ShortCode implements ShortCodeContract{
 	public function render($attributes = [],$content = null): string {
 
 		if(!is_array($attributes)){
-			$attributes = ['given'=>$attributes];
+			$attributes = ['attribute'=>$attributes];
 		}
 
 		/* Always overwrite the content */

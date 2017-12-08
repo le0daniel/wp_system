@@ -63,12 +63,17 @@ class Page {
 
 		/* Load Posts */
 		$this->attributes['posts'] = [];
-		while( have_posts() ){
-			/* Increment counter! */
-			the_post();
-			global $post;
 
-			$this->attributes['posts'][] = new Post($post);
+		if(have_posts()) {
+			while ( have_posts() ) {
+				/* Increment counter! */
+				the_post();
+				global $post;
+
+				$this->attributes['posts'][] = new Post( $post );
+			}
+			$post = null;
+			wp_reset_query();
 		}
 
 		$this->_posts_loaded = true;

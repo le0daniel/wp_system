@@ -286,6 +286,7 @@ class App {
 
 		/* Make Singletons */
 		$this->container->singleton(Context::class);
+		$this->container->singleton('wp.view');
 
 	}
 

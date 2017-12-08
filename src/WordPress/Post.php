@@ -63,7 +63,7 @@ class Post {
 			'meta'      =>get_post_meta($this->id),
 
 			/* Pass the content through filters */
-			'content'   =>apply_filters('the_content',$post->post_content),
+			'content'   =>$post->post_content,
 
 			/* For displaying */
 			'class'=>   get_post_class(),
@@ -85,6 +85,15 @@ class Post {
 			]
 		];
 
+	}
+
+	/**
+	 * @param $value
+	 *
+	 * @return mixed
+	 */
+	protected function getContentAttribute($value){
+		return apply_filters('the_content',$value);
 	}
 
 	/**

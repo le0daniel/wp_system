@@ -12,6 +12,7 @@ namespace le0daniel\System\View;
 use Illuminate\Container\Container;
 use le0daniel\System\Contracts\CastArray;
 use le0daniel\System\Helpers\Path;
+use le0daniel\System\WordPress\Context;
 use Monolog\Logger;
 
 class View {
@@ -84,10 +85,10 @@ class View {
 	];
 
 	/**
-	 * @var array
+	 * @var string|CastArray
 	 */
 	protected $context = 'wp.context';
-	protected $_context_set = false;
+	protected $_context_locked = false;
 
 	/**
 	 * The root dir for the view composer
@@ -251,24 +252,14 @@ class View {
 	 */
 	public function addContext($context){
 
-		if( $this->_context_set ){
+		if( $this->_context_locked ){
 			throw new \Exception('Context can only be set once!');
 		}
 
-		$this->context = $context;
-		$this->_context_set = true;
+		$this->context         = $context;
+		$this->_context_locked = true;
 
 		return $this;
-	}
-
-	/**
-	 * Checks if a given shared value key exists!
-	 * @param string $key
-	 *
-	 * @return bool
-	 */
-	public function hasSharedKey(string $key):bool {
-		return array_key_exists($key,$this->data);
 	}
 
 	/**
@@ -332,7 +323,6 @@ class View {
 			$plain_cache_path = $this->getPlainCachePath($filename,$data_to_render);
 
 			if( file_exists($plain_cache_path) ){
-				$this->setDebugHeaders($plain_cache_path);
 				return (string) file_get_contents($plain_cache_path);
 			}
 
@@ -415,17 +405,6 @@ class View {
 	 * @return array
 	 */
 	protected function mergeData(array $data):array {
-
-		$intersect = array_intersect_key($this->data,$data);
-
-		/* Check if there is a collision! */
-		if( ! empty($intersect) ){
-			app()
-				->log()
-				->warning('Duplicated keys in data! Following keys where overwritten by the shared data: '. implode(', ', array_keys($intersect)));
-		}
-
-		/* Merge the arrays, always in favor of shared data! */
 		return array_merge($data,$this->data);
 	}
 
@@ -435,20 +414,19 @@ class View {
 	 * @return array
 	 */
 	protected function addContextToData(array $data):array{
-
-		return array_merge( $data , $this->getContext()->toArray() );
+		return array_merge( $data , $this->getContext() );
 	}
 
 	/**
 	 * Constructs the context
 	 *
-	 * @return CastArray
+	 * @return Array
 	 */
-	protected function getContext():CastArray{
+	protected function getContext():array {
 		if( ! is_object($this->context) ){
 			$this->context = $this->container->make($this->context);
 		}
 
-		return $this->context;
+		return $this->context->toArray();
 	}
 }
