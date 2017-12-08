@@ -65,4 +65,11 @@ trait isGettable {
 		return array_key_exists($name,$this->attributes) || method_exists($this,$this->getterName($name));
 	}
 
+	/**
+	 * @return array
+	 */
+	public function toArray() {
+		return $this->attributes;
+	}
+
 }

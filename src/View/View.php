@@ -12,6 +12,7 @@ namespace le0daniel\System\View;
 use Illuminate\Container\Container;
 use le0daniel\System\Contracts\CastArray;
 use le0daniel\System\Helpers\Path;
+use Monolog\Logger;
 
 class View {
 
@@ -102,9 +103,6 @@ class View {
 	 */
 	public function __construct(Container $container) {
 		$this->container = $container;
-
-		/* Set WP Data */
-		$this->setAdditionalData();
 	}
 
 	/**
@@ -313,6 +311,7 @@ class View {
 	 */
 	public function render(string $filename,array $data=[], bool $with_context = true, bool $force_plain_cache = false):string {
 
+		$start = microtime(true);
 		$data_to_render = $this->mergeData($data);
 
 		/* Add context! */
@@ -327,38 +326,52 @@ class View {
 			];
 		}
 
+		/* Check if full HTML Cache is enabled! */
 		if( $this->plain_cache || $force_plain_cache ){
 
-			$plain_cache = $this->getPlainCachePath($filename,$data_to_render);
-			if( file_exists($plain_cache) ){
-				$this->setDebugHeaders($plain_cache);
-				return (string) file_get_contents($plain_cache);
+			$plain_cache_path = $this->getPlainCachePath($filename,$data_to_render);
+
+			if( file_exists($plain_cache_path) ){
+				$this->setDebugHeaders($plain_cache_path);
+				return (string) file_get_contents($plain_cache_path);
 			}
 
 		}
 
+		/* Render */
 		$html = (string) $this->getTwig()->render(
 			$filename,
 			$data_to_render
 		);
 
 		/* Cache */
-		if( isset($plain_cache) ){
-			file_put_contents($plain_cache,$html);
+		if( isset($plain_cache_path) ){
+			file_put_contents($plain_cache_path,$html);
 		}
 
-		/* Gets Time */
-		$this->setDebugHeaders();
+		/* Check duration */
+		$duration = microtime(true) - $start;
+
+		if( $duration > 2 ){
+			/** @var Logger $logger */
+			$logger = $this->container->make('system.log');
+			$logger->warning('Render time for '.$filename.' over 2s!',['Server'=>$_SERVER]);
+		}
 
 		return $html;
 
 	}
 
 	/**
-	 * @param string $cache_file
+	 * @param string $filename
 	 */
-	protected function setDebugHeaders(string $cache_file = ''){
-
+	protected function setDebugHeaders(string $filename = 'Not Set'){
+		if(WP_DEBUG){
+			header('X-Plain-Cache: '. ( ($this->plain_cache )?'true':'false' ) );
+			header('X-Twig-Cache: '. ( ($this->twig_config['cache'])?$this->twig_config['cache']:'false' ) );
+			header('X-Up-Time: '.app()->getUpTime());
+			header('X-Twig-Template: '.$filename);
+		}
 	}
 
 	/**
@@ -380,16 +393,20 @@ class View {
 	 *
 	 * @param string $filename
 	 * @param array $data
+	 * @param bool $terminate
 	 */
-	public function show(string $filename,array $data=[]){
+	public function show(string $filename,array $data=[],$terminate = true){
 
-		if(WP_DEBUG){
-			header('X-Plain-Cache-Global: '. ( ($this->plain_cache )?'true':'false' ) );
-			header('X-Twig-Cache: '. ( ($this->twig_config['cache'])?$this->twig_config['cache']:'false' ) );
-			header('X-Up-Time: '.app()->getUpTime());
-		}
+		/* Add Debug headers */
+		$this->setDebugHeaders($filename);
 
+		/* Render and Output */
 		echo $this->render($filename,$data);
+
+		/* Terminate */
+		if($terminate){
+			die();
+		}
 	}
 
 	/**
@@ -436,17 +453,4 @@ class View {
 
 		return $this->context;
 	}
-
-	/**
-	 * Adds additional Data to the data object
-	 */
-	protected function setAdditionalData(){
-
-		/* Sets the WP data */
-		$this->data['wp']=[
-			/* Root dir, to look for templates */
-			'root_dir'          =>$this->root_dir,
-		];
-	}
-
 }

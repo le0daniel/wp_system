@@ -9,6 +9,7 @@
 namespace le0daniel\System\WordPress;
 
 
+use le0daniel\System\Contracts\CastArray;
 use le0daniel\System\Traits\isGettable;
 
 /**
@@ -34,6 +35,14 @@ class Page {
 	];
 
 	/**
+	 * If posts are loaded
+	 *
+	 * @var bool
+	 */
+	protected $_posts_loaded = false;
+	protected $_posts_load_time = 0;
+
+	/**
 	 * Page constructor.
 	 */
 	public function __construct() {
@@ -41,32 +50,36 @@ class Page {
 		$this->attributes['body']=[
 			'class'=> get_body_class(),
 		];
+
+		$this->loadPosts();
 	}
 
 	/**
-	 * Get Posts
-	 *
-	 * @return array
+	 * Load the posts
 	 */
-	protected function getPostsAttribute($value):array{
+	protected function loadPosts(){
 
-		/* Load */
-		if(is_null($value)){
+		$start = microtime(true);
 
-			$this->attributes['posts'] = [];
+		/* Load Posts */
+		$this->attributes['posts'] = [];
+		while( have_posts() ){
+			/* Increment counter! */
+			the_post();
+			global $post;
 
-			while( have_posts() ){
-				/* Increment counter! */
-				the_post();
-				global $post;
-
-				$this->attributes['posts'][] = new Post($post);
-			}
-
-			return $this->attributes['posts'];
+			$this->attributes['posts'][] = new Post($post);
 		}
 
-		return $value;
+		$this->_posts_loaded = true;
+		$this->_posts_load_time = microtime(true) - $start;
+	}
+
+	/**
+	 * Returns load time
+	 */
+	protected function getLoadtimeAttribute(){
+		return $this->_posts_load_time;
 	}
 
 	/**
@@ -74,7 +87,7 @@ class Page {
 	 *
 	 * @return string
 	 */
-	protected function getUrlAttribute($value):string{
+	protected function getUrlAttribute($value=null):string{
 
 		if( $this->content() ){
 			return (string) get_permalink();
@@ -89,7 +102,7 @@ class Page {
 	 *
 	 * @return bool|Post
 	 */
-	public function content(){
+	protected function getContentAttribute(){
 
 		if(count($this->posts) === 1){
 			return $this->posts[0];

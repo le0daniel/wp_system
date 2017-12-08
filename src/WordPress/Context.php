@@ -45,18 +45,24 @@ class Context implements CastArray {
 	}
 
 	/**
+	 * @return array
+	 */
+	protected function castBase():array{
+		return [
+			'site'=>$this->site,
+			'page'=>$this->page,
+			'user'=>$this->user,
+		];
+	}
+
+	/**
 	 * Do additional stuff before returning as array!
 	 *
 	 * @return array
 	 */
 	public function toArray():array
 	{
-
-		return [
-			'site'=>$this->site,
-			'page'=>$this->page,
-			'user'=>$this->user,
-		];
+		return $this->castBase();
 	}
 
 }
