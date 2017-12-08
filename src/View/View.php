@@ -245,18 +245,18 @@ class View {
 	}
 
 	/**
-	 * @param CastArray $context
+	 * @param $context
 	 *
 	 * @return $this
 	 * @throws \Exception
 	 */
-	public function addContext(CastArray $context){
+	public function addContext($context){
 
 		if( ! empty($this->context) ){
 			throw new \Exception('Context can only be set once!');
 		}
 
-		$this->context = $context->toArray();
+		$this->context = $context;
 
 		return $this;
 	}
@@ -318,6 +318,12 @@ class View {
 			$data_to_render = $this->addContextToData($data_to_render);
 		}
 
+		/* Add debug info */
+		if( WP_DEBUG ){
+			$data_to_render['debug']=[
+				'template'=>$filename,
+			];
+		}
 
 		if( $this->plain_cache || $force_plain_cache ){
 
@@ -413,7 +419,20 @@ class View {
 	 */
 	protected function addContextToData(array $data):array{
 
-		return array_merge($data,$this->context);
+		return array_merge( $data , $this->getContext()->toArray() );
+	}
+
+	/**
+	 * Constructs the context
+	 *
+	 * @return CastArray
+	 */
+	protected function getContext():CastArray{
+		if( ! is_object($this->context) ){
+			$this->context = $this->container->make($this->context);
+		}
+
+		return $this->context;
 	}
 
 	/**

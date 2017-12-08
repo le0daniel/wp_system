@@ -47,6 +47,13 @@ class ShortCode implements ShortCodeContract{
 	protected $render_with_context = false;
 
 	/**
+	 * Cache file in plain HTML
+	 *
+	 * @var bool
+	 */
+	protected $cache = true;
+
+	/**
 	 * ShortCode constructor.
 	 *
 	 * @param string $name
@@ -117,7 +124,7 @@ class ShortCode implements ShortCodeContract{
 
 		/* Cache in plain HTML if it's without context */
 		$plain_cache = true;
-		if( $this->render_with_context ){
+		if( $this->render_with_context || ! $this->cache ){
 			$plain_cache = false;
 		}
 
