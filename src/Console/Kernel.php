@@ -10,6 +10,7 @@ namespace le0daniel\System\Console;
 
 
 use Illuminate\Container\Container;
+use le0daniel\System\Console\Commands\ClearCacheInteractive;
 use le0daniel\System\Console\Commands\ClearCacheVC;
 use le0daniel\System\Console\Commands\MakePostType;
 use le0daniel\System\Console\Commands\MakeShortCut;
@@ -27,7 +28,10 @@ class Kernel implements KernelContract {
 	 */
 	private $commands = [
 		MakeShortCut::class,
+
 		ClearCacheVC::class,
+		ClearCacheInteractive::class,
+
 		MakePostType::class,
 
 		TakeSiteOffline::class,

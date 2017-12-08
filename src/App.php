@@ -201,7 +201,7 @@ class App {
 		}
 
 		/* No iframe */
-		header('X-Frame-Options','SAMEORIGIN');
+		header('X-Frame-Options: SAMEORIGIN');
 
 		/* Currently disabled */
 		//header('Strict-Transport-Security','');

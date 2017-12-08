@@ -45,7 +45,7 @@ trait isVisualComposerComponent {
 	 * @return bool
 	 */
 	protected function shouldCache(): bool {
-		return (! WP_DEBUG );
+		return $this->cache;
 	}
 
 	/**

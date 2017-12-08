@@ -10,6 +10,7 @@ namespace le0daniel\System\View;
 
 
 use Illuminate\Container\Container;
+use le0daniel\System\App;
 use le0daniel\System\Contracts\CastArray;
 use le0daniel\System\Helpers\Path;
 use le0daniel\System\WordPress\Context;
@@ -389,7 +390,10 @@ class View {
 		$this->setDebugHeaders($filename);
 
 		/* Render and Output */
-		echo $this->render($filename,$data);
+		$html = $this->render($filename,$data);
+		header('X-Duration: '.app()->getUpTime());
+
+		echo $html;
 
 		/* Terminate */
 		if($terminate){

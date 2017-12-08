@@ -122,25 +122,44 @@ class ShortCode implements ShortCodeContract{
 	}
 
 	/**
-	 * @param array $attributes
-	 * @param null $content What was between the Brackets!
+	 * @param $attributes
+	 * @param $content
 	 *
-	 * @return string
+	 * @return array
 	 */
-	public function render($attributes = [],$content = null): string {
+	protected function prepareAttributes($attributes,$content):array{
 
 		/* Cast as Array */
 		if( ! is_array($attributes)){
 			$attributes = ['attribute'=>$attributes];
 		}
 
-		/* Called */
+		/* Filter Attributes if needed */
 		if( ! empty($this->only) ){
 			$attributes = array_filter($attributes,[$this,'filterKeys'],ARRAY_FILTER_USE_KEY);
 		}
 
 		/* Always overwrite the content */
-		$attributes['content']=$content;
+		if( ! empty($content)){
+			$attributes['content']= do_shortcode( $content );
+		}
+		else{
+			$attributes['content']=null;
+		}
+
+		return $attributes;
+	}
+
+	/**
+	 * @param array $raw_attributes
+	 * @param null $raw_content
+	 *
+	 * @return string
+	 */
+	public function render($raw_attributes = [],$raw_content = null): string {
+
+		/** @var array $attributes */
+		$attributes = $this->prepareAttributes($raw_attributes,$raw_content);
 
 		/* Cache in plain HTML if it's without context */
 		$plain_cache = true;
@@ -148,7 +167,12 @@ class ShortCode implements ShortCodeContract{
 			$plain_cache = false;
 		}
 
-		/* IMPORTANT: A shortcode does not have access to the context by default! */
+		/**
+		 * IMPORTANT:
+		 * A shortcode does not have access to the context
+		 * by default, and should normally not have access
+		 * to it!
+		 */
 		return view()->render( $this->getTemplatePath(), $attributes, $this->render_with_context, $plain_cache);
 	}
 }
