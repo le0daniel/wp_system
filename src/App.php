@@ -284,10 +284,6 @@ class App {
 		$this->container->alias(Kernel::class,      'system.kernel');
 		$this->container->alias(Logger::class,      'system.log');
 
-		/* Make Singletons */
-		$this->container->singleton(Context::class);
-		$this->container->singleton('wp.view');
-
 	}
 
 	/**

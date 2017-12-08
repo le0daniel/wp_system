@@ -40,6 +40,11 @@ class ShortCode implements ShortCodeContract{
 	protected $extension = 'twig';
 
 	/**
+	 * @var array
+	 */
+	protected $only = [];
+
+	/**
 	 * Should the WP Context Be included to render the Shortcut
 	 *
 	 * @var bool
@@ -96,6 +101,15 @@ class ShortCode implements ShortCodeContract{
 	}
 
 	/**
+	 * @param $key
+	 *
+	 * @return bool
+	 */
+	protected function filterKeys($key):bool{
+		return (in_array($key,$this->only));
+	}
+
+	/**
 	 * Returns an array to construct a shortcode
 	 *
 	 * @return array
@@ -115,8 +129,14 @@ class ShortCode implements ShortCodeContract{
 	 */
 	public function render($attributes = [],$content = null): string {
 
-		if(!is_array($attributes)){
+		/* Cast as Array */
+		if( ! is_array($attributes)){
 			$attributes = ['attribute'=>$attributes];
+		}
+
+		/* Called */
+		if( ! empty($this->only) ){
+			$attributes = array_filter($attributes,[$this,'filterKeys'],ARRAY_FILTER_USE_KEY);
 		}
 
 		/* Always overwrite the content */

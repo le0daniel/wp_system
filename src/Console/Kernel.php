@@ -59,13 +59,19 @@ class Kernel implements KernelContract {
 	 * Run
 	 */
 	public function run() {
+
+		/* Don't run if on WP CLI */
+		if( defined('WP_CLI') && WP_CLI === true ){
+			return;
+		}
+
 		/** @var Application $app */
-		/*$app = $this->container->make('system.console');
+		$app = $this->container->make('system.console');
 
 		array_walk($this->commands,function(string $abstract)use($app){
 			$app->add( $this->container->make($abstract) );
 		});
 
-		$app->run();*/
+		$app->run();
 	}
 }
