@@ -9,6 +9,7 @@
 namespace le0daniel\System\WordPress;
 
 use le0daniel\System\Contracts\CastArray;
+use le0daniel\System\Contracts\Hashable;
 use Timber\Request;
 
 /**
@@ -17,7 +18,7 @@ use Timber\Request;
  *
  * Containing the full wordpress context
  */
-class Context implements CastArray {
+class Context implements CastArray, Hashable {
 
 	/**
 	 * @var Site|string
@@ -65,4 +66,27 @@ class Context implements CastArray {
 		return $this->castBase();
 	}
 
+	/**
+	 * Return Hash
+	 *
+	 * @return string
+	 */
+	public function getHash(): string {
+
+		$hash = '';
+
+		/* Loop through elements */
+		foreach ($this->toArray() as $object){
+
+			if( $object instanceof Hashable ){
+				$hash .= $object->getHash();
+			}
+			else{
+				$hash .= md5(serialize($object));
+			}
+
+		}
+
+		return md5($hash);
+	}
 }

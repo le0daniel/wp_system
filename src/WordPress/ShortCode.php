@@ -101,6 +101,15 @@ class ShortCode implements ShortCodeContract{
 	}
 
 	/**
+	 * Checks if it should cache the config
+	 *
+	 * @return bool
+	 */
+	protected function shouldCache(): bool {
+		return ($this->cache && WP_DEBUG );
+	}
+
+	/**
 	 * @param $key
 	 *
 	 * @return bool
@@ -156,14 +165,14 @@ class ShortCode implements ShortCodeContract{
 	 *
 	 * @return string
 	 */
-	public function render($raw_attributes = [],$raw_content = null): string {
+	final public function render($raw_attributes = [],$raw_content = null): string {
 
 		/** @var array $attributes */
 		$attributes = $this->prepareAttributes($raw_attributes,$raw_content);
 
 		/* Cache in plain HTML if it's without context */
 		$plain_cache = true;
-		if( $this->render_with_context || ! $this->cache ){
+		if( $this->render_with_context || ! $this->shouldCache() ){
 			$plain_cache = false;
 		}
 

@@ -10,6 +10,7 @@ namespace le0daniel\System\WordPress;
 
 
 use Carbon\Carbon;
+use le0daniel\System\Contracts\Hashable;
 use le0daniel\System\Helpers\TwigFunctions;
 use le0daniel\System\Traits\isGettable;
 

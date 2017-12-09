@@ -40,15 +40,6 @@ trait isVisualComposerComponent {
 	}
 
 	/**
-	 * Checks if it should cache the config
-	 *
-	 * @return bool
-	 */
-	protected function shouldCache(): bool {
-		return $this->cache;
-	}
-
-	/**
 	 * @return array
 	 */
 	public function toVisualComposer():array{
