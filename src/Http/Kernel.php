@@ -66,8 +66,6 @@ class Kernel implements KernelContract {
 	 * Run the Application
 	 */
 	public function run() {
-
 		$this->container->make('wp.extend')->boot();
-
 	}
 }

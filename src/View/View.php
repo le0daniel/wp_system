@@ -391,7 +391,11 @@ class View {
 
 		/* Render and Output */
 		$html = $this->render($filename,$data);
-		header('X-Duration: '.app()->getUpTime());
+
+		if( defined('EXPOSE_DURATION') && EXPOSE_DURATION ){
+			header('X-Duration: '.app()->getUpTime());
+		}
+
 
 		echo $html;
 
