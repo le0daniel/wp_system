@@ -12,8 +12,10 @@ namespace le0daniel\System;
 use Carbon\Carbon;
 use Illuminate\Container\Container;
 use le0daniel\System\Contracts\AddLogicToWordpress;
+use le0daniel\System\Contracts\ServiceProvider;
 use le0daniel\System\Contracts\ShortCode;
 use le0daniel\System\Helpers\Path;
+use le0daniel\System\ServiceProviders\Log;
 use le0daniel\System\WordPress\Context;
 use le0daniel\System\WordPress\MetaField;
 use le0daniel\System\WordPress\Page;
@@ -67,6 +69,13 @@ class App {
 	 * @var Container
 	 */
 	protected $container;
+
+	/**
+	 * @var array
+	 */
+	protected $service_providers = [
+		Log::class
+	];
 
 	/**
 	 * App constructor.
@@ -240,26 +249,35 @@ class App {
 	 */
 	protected function register(){
 
+		/* Register Root dir */
+		$this->container->instance('system.root_dir',self::$root_dir);
+
 		/* Register the View as a Singleton */
 		$this->container->singleton(View::class);
 
-		/* Monolog Logger */
-		$this->container->singleton( Logger::class, function(Container $container):Logger{
-			$log = new Logger(self::$name);
-			$log->pushHandler(
-				$container->make(StreamHandler::class,['stream'=>self::$root_dir.'/storage/log/' . Carbon::now()->toDateString() . '.log'])
-			);
-			return $log;
-		});
-
-		/* Setup the Stream Logger */
-		$this->container->resolving(StreamHandler::class, function (StreamHandler $logger) {
-			$logger->setLevel(Logger::DEBUG);
-			$logger->setFormatter(new LineFormatter(null, null, false, true));
-		});
-
 		/* Register all Aliases */
 		$this->registerAliases();
+
+		/* Register Service Providers */
+		$this->service_providers = array_map([$this,'initAndRegisterServiceProvider'],$this->service_providers);
+	}
+
+	/**
+	 * @param $abstract
+	 *
+	 * @return mixed
+	 */
+	protected function initAndRegisterServiceProvider($abstract){
+		$provider = $this->container->make($abstract);
+		$provider->register($this->container);
+		return $provider;
+	}
+
+	/**
+	 * @param ServiceProvider $provider
+	 */
+	protected function bootServiceProvider(ServiceProvider $provider){
+		$provider->boot($this);
 	}
 
 	/**
@@ -284,6 +302,7 @@ class App {
 		$this->container->alias(Kernel::class,              'system.kernel');
 		$this->container->alias(Logger::class,              'system.log');
 
+
 	}
 
 	/**
@@ -295,7 +314,7 @@ class App {
 		 * rest should be handled by the dedicated
 		 * Kernel (Http/Console)
 		 */
-
+		array_walk($this->service_providers,[$this,'bootServiceProvider']);
 
 		/* Boot */
 		$this->container->call('system.kernel@boot');
@@ -333,6 +352,13 @@ class App {
 	 */
 	public function run(){
 		return $this->container->call('system.kernel@run');
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isRunningInHttpMode():bool{
+		return ( php_sapi_name() !== 'cli' );
 	}
 
 	/**
