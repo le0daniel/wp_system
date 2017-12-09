@@ -8,7 +8,7 @@
  *
  * @return mixed
  */
-function resolve($abstract = null,...$params){
+function resolve($abstract = null,array $params=[]){
 
 	$container = \le0daniel\System\App::getInstance()->getContainer();
 

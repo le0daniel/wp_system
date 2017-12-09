@@ -70,7 +70,8 @@ class Page {
 				the_post();
 				global $post;
 
-				$this->attributes['posts'][] = new Post( $post );
+				/* Resolve Post through container */
+				$this->attributes['posts'][] = resolve('wp.post',['post'=>$post]);
 			}
 			//$post = null;
 			//wp_reset_query();

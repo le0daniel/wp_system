@@ -47,6 +47,11 @@ class Post {
 	protected $id;
 
 	/**
+	 * @var array
+	 */
+	protected $_cached_meta;
+
+	/**
 	 * Post constructor.
 	 *
 	 * @param \WP_Post $post
@@ -60,7 +65,7 @@ class Post {
 		$this->attributes = [
 			'id'        =>$this->id,
 			'title'     =>$post->post_title,
-			'meta'      =>get_post_meta($this->id),
+			'meta'      =>$this->id,
 
 			/* Pass the content through filters */
 			'content'   =>$post->post_content,
@@ -68,10 +73,8 @@ class Post {
 			/* For displaying */
 			'class'=>   get_post_class(),
 
-			'links'=>[
-				'next'      =>get_next_posts_link(),
-				'previous'  =>get_preview_post_link(),
-			],
+			'links'=>null,
+			'actions'=>null,
 
 			/* Continue */
 			'author'    =>$post->post_author,
@@ -79,10 +82,6 @@ class Post {
 
 			/* If editable by user */
 			'has_actions'  =>(get_edit_post_link())?true:false,
-			'actions'=>[
-				'edit'  =>get_edit_post_link(),
-				'delete'=>get_delete_post_link(),
-			]
 		];
 
 	}
@@ -94,6 +93,42 @@ class Post {
 	 */
 	protected function getContentAttribute($value){
 		return apply_filters('the_content',$value);
+	}
+
+	/**
+	 * @param $value
+	 *
+	 * @return mixed
+	 */
+	protected function getMetaAttribute($value){
+
+		/* Get cached Meta */
+		if( ! isset($this->_cached_meta) ){
+			$this->_cached_meta = get_post_meta($value);
+		}
+
+		return $this->_cached_meta;
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getLinksAttribute():array {
+		/* Return Array with links */
+		return [
+			'next'      =>get_next_posts_link(),
+			'previous'  =>get_preview_post_link(),
+		];
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getActionsAttribute():array{
+		return [
+			'next'      =>get_next_posts_link(),
+			'previous'  =>get_preview_post_link(),
+		];
 	}
 
 	/**
