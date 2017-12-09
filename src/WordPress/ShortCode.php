@@ -106,7 +106,7 @@ class ShortCode implements ShortCodeContract{
 	 * @return bool
 	 */
 	protected function shouldCache(): bool {
-		return ($this->cache && WP_DEBUG );
+		return ($this->cache && ! WP_DEBUG );
 	}
 
 	/**
