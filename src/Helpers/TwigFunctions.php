@@ -65,7 +65,8 @@ class TwigFunctions {
 	 * @return MetaField
 	 */
 	public static function getField(string $key,$id = false){
-		return new MetaField($key,$id);
+		return  resolve('wp.metafield',['key'=>$key,'id'=>$id]);
+		//new MetaField($key,$id);
 	}
 
 	/**

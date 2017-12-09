@@ -268,21 +268,21 @@ class App {
 	protected function registerAliases(){
 
 		/* WP Aliases */
-		$this->container->alias(Context::class,     'wp.context');
-		$this->container->alias(MetaField::class,   'wp.metafield');
-		$this->container->alias(Page::class,        'wp.page');
-		$this->container->alias(Post::class,        'wp.post');
-		$this->container->alias(ShortCode::class,   'wp.shortcode');
-		$this->container->alias(Site::class,        'wp.site');
-		$this->container->alias(User::class,        'wp.user');
-		$this->container->alias(AddLogicToWordpress::class,'wp.extend');
+		$this->container->alias(Context::class,             'wp.context');
+		$this->container->alias(MetaField::class,           'wp.metafield');
+		$this->container->alias(Page::class,                'wp.page');
+		$this->container->alias(Post::class,                'wp.post');
+		$this->container->alias(ShortCode::class,           'wp.shortcode');
+		$this->container->alias(Site::class,                'wp.site');
+		$this->container->alias(User::class,                'wp.user');
+		$this->container->alias(AddLogicToWordpress::class, 'wp.extend');
 
 		/* Tools */
-		$this->container->alias(View::class,        'view');
+		$this->container->alias(View::class,                'view');
 
 		/* System Aliases */
-		$this->container->alias(Kernel::class,      'system.kernel');
-		$this->container->alias(Logger::class,      'system.log');
+		$this->container->alias(Kernel::class,              'system.kernel');
+		$this->container->alias(Logger::class,              'system.log');
 
 	}
 
