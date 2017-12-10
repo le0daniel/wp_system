@@ -13,26 +13,27 @@ use Carbon\Carbon;
 use Illuminate\Container\Container;
 use le0daniel\System\App;
 use le0daniel\System\Contracts\ServiceProvider;
+use le0daniel\System\RootServiceProvider;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 
-class Log implements ServiceProvider {
+class Log extends RootServiceProvider {
 
 	public static $name = 'le0daniel\\System';
 
 	/**
 	 * Boot
 	 */
-	public function boot(App $app) {}
+	public function boot() {}
 
 	/**
-	 * @param Container $container
+	 * Register
 	 */
-	public function register( Container $container ) {
+	public function register() {
 
 		/* Monolog Logger */
-		$container->singleton( Logger::class, function(Container $container):Logger{
+		$this->app->singleton( Logger::class, function(Container $container):Logger{
 			$log = new Logger(self::$name);
 			$log->pushHandler(
 
@@ -47,7 +48,7 @@ class Log implements ServiceProvider {
 		});
 
 		/* Setup the Stream Logger */
-		$container->resolving(StreamHandler::class, function (StreamHandler $logger) {
+		$this->app->resolving(StreamHandler::class, function (StreamHandler $logger) {
 			$logger->setLevel(Logger::DEBUG);
 			$logger->setFormatter(new LineFormatter(null, null, false, true));
 		});

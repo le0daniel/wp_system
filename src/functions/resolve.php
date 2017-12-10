@@ -10,13 +10,13 @@
  */
 function resolve($abstract = null,array $params=[]){
 
-	$container = \le0daniel\System\App::getInstance()->getContainer();
+	$app = \le0daniel\System\App::getInstance();
 
 	/* Resolve */
 	if(is_string($abstract)){
-		return $container->make($abstract,$params);
+		return $app->make($abstract,$params);
 	}
 
 	/* Return Container Instance */
-	return $container;
+	return $app;
 }

@@ -15,17 +15,13 @@ use le0daniel\System\App;
 interface ServiceProvider {
 
 	/**
-	 * @param App $app
-	 *
-	 * @return mixed
-	 */
-	public function boot(App $app);
-
-	/**
-	 * @param Container $container
-	 *
 	 * @return void
 	 */
-	public function register(Container $container);
+	public function boot();
+
+	/**
+	 * @return void
+	 */
+	public function register();
 
 }

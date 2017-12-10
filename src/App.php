@@ -36,7 +36,7 @@ use le0daniel\System\View\View;
  *
  * It uses the the Laravel Container as IoC
  */
-class App {
+class App extends Container{
 
 	/**
 	 * @var string
@@ -49,9 +49,9 @@ class App {
 	private static $version = '1.0.0';
 
 	/**
-	 * @var App
+	 * @var string
 	 */
-	private static $instance;
+	public static $config_dir = __DIR__.'/../config';
 
 	/**
 	 * @var float
@@ -64,18 +64,14 @@ class App {
 	public static $root_dir;
 
 	/**
-	 * IoC Container (L5)
-	 *
-	 * @var Container
+	 * @var array
 	 */
-	protected $container;
+	protected $config;
 
 	/**
 	 * @var array
 	 */
-	protected $service_providers = [
-		Log::class
-	];
+	protected $service_providers = [];
 
 	/**
 	 * App constructor.
@@ -90,11 +86,15 @@ class App {
 			self::$root_dir = (isset($GLOBALS['root_dir']))? realpath($GLOBALS['root_dir']) : realpath(__DIR__.'/..');
 		}
 
-		/* Include the container */
-		$this->container = $this->createContainer();
+		/* Set Instance */
+		self::setInstance($this);
+
+		/* Load Config */
+		$this->loadConfig();
 
 		/* Bind Kernel */
-		$this->bindKernel();
+		$this->createImportantBindings();
+
 
 		/* Register and boot! */
 		$this->register();
@@ -102,27 +102,30 @@ class App {
 	}
 
 	/**
-	 * Creates the Laravel 5 Container
 	 *
-	 * @return Container
 	 */
-	private function createContainer():Container{
-		$container = new Container();
+	protected function loadConfig(){
 
-		/* Bind container itself */
-		$container->instance(Container::class, $container);
-		$container->bind(\Illuminate\Contracts\Container\Container::class,Container::class);
+		/* Include Config file */
+		$this->config = require self::$config_dir.'/app.php';
 
-		/**
-		 * Initial Bindings
-		 */
-		$container->singleton( HttpKernel::class );
-		$container->singleton( ConsoleKernel::class);
+		/* Set Service Providers */
+		$this->service_providers = $this->config['providers'];
+	}
 
-		/**
-		 * Return the Instance of the container
-		 */
-		return $container;
+	/**
+	 * @param string $key
+	 * @param null $default
+	 *
+	 * @return mixed|null
+	 */
+	public function config(string $key,$default= null){
+
+		if( ! array_has($this->config,$key) ){
+			return $default;
+		}
+
+		return array_get($this->config,$key);
 	}
 
 	/**
@@ -235,12 +238,25 @@ class App {
 	/**
 	 * Bind The Kernel Interface to an Kernel
 	 */
-	protected function bindKernel(){
+	protected function createImportantBindings(){
+
+		/* Bind container itself */
+		$this->instance(Container::class, $this);
+		$this->bind(App::class,Container::class);
+		$this->bind(\Illuminate\Contracts\Container\Container::class,Container::class);
+
+		/**
+		 * Initial Bindings
+		 */
+		$this->singleton( HttpKernel::class );
+		$this->singleton( ConsoleKernel::class);
+		$this->singleton(View::class);
+
 		if(php_sapi_name() === 'cli'){
-			$this->container->bind(Kernel::class,ConsoleKernel::class);
+			$this->bind(Kernel::class,ConsoleKernel::class);
 		}
 		else{
-			$this->container->bind(Kernel::class,HttpKernel::class);
+			$this->bind(Kernel::class,HttpKernel::class);
 		}
 	}
 
@@ -249,11 +265,8 @@ class App {
 	 */
 	protected function register(){
 
-		/* Register Root dir */
-		$this->container->instance('system.root_dir',self::$root_dir);
-
-		/* Register the View as a Singleton */
-		$this->container->singleton(View::class);
+		/* Register all needed system Constants */
+		$this->registerConstants();
 
 		/* Register all Aliases */
 		$this->registerAliases();
@@ -268,8 +281,8 @@ class App {
 	 * @return mixed
 	 */
 	protected function initAndRegisterServiceProvider($abstract){
-		$provider = $this->container->make($abstract);
-		$provider->register($this->container);
+		$provider = $this->make($abstract);
+		$provider->register();
 		return $provider;
 	}
 
@@ -277,7 +290,15 @@ class App {
 	 * @param ServiceProvider $provider
 	 */
 	protected function bootServiceProvider(ServiceProvider $provider){
-		$provider->boot($this);
+		$provider->boot();
+	}
+
+	/**
+	 * Register Constants
+	 */
+	protected function registerConstants(){
+		/* Register Root dir */
+		$this->instance('system.root_dir',self::$root_dir);
 	}
 
 	/**
@@ -286,22 +307,22 @@ class App {
 	protected function registerAliases(){
 
 		/* WP Aliases */
-		$this->container->alias(Context::class,             'wp.context');
-		$this->container->alias(MetaField::class,           'wp.metafield');
-		$this->container->alias(Page::class,                'wp.page');
-		$this->container->alias(Post::class,                'wp.post');
-		$this->container->alias(ShortCode::class,           'wp.shortcode');
-		$this->container->alias(Site::class,                'wp.site');
-		$this->container->alias(User::class,                'wp.user');
-		$this->container->alias(AddLogicToWordpress::class, 'wp.extend');
+		$this->alias(Context::class,             'wp.context');
+		$this->alias(MetaField::class,           'wp.metafield');
+		$this->alias(Page::class,                'wp.page');
+		$this->alias(Post::class,                'wp.post');
+		$this->alias(ShortCode::class,           'wp.shortcode');
+		$this->alias(Site::class,                'wp.site');
+		$this->alias(User::class,                'wp.user');
+		$this->alias(AddLogicToWordpress::class, 'wp.extend');
 
 		/* Tools */
-		$this->container->alias(View::class,                'view');
+		$this->alias(View::class,                'view');
 
 		/* System Aliases */
-		$this->container->alias(Kernel::class,              'system.kernel');
-		$this->container->alias(Logger::class,              'system.log');
-
+		$this->alias(Kernel::class,              'system.kernel');
+		$this->alias(Logger::class,              'system.log');
+		$this->alias('system.root_dir',          'system.root');
 
 	}
 
@@ -317,7 +338,7 @@ class App {
 		array_walk($this->service_providers,[$this,'bootServiceProvider']);
 
 		/* Boot */
-		$this->container->call('system.kernel@boot');
+		$this->call('system.kernel@boot');
 	}
 
 	/**
@@ -326,7 +347,7 @@ class App {
 	 * @return Container
 	 */
 	public function getContainer():Container{
-		return $this->container;
+		return $this;
 	}
 
 	/**
@@ -344,14 +365,14 @@ class App {
 	 * @return Logger
 	 */
 	public function log():Logger{
-		return $this->container->get('system.log');
+		return $this->get('system.log');
 	}
 
 	/**
 	 * Run the App
 	 */
 	public function run(){
-		return $this->container->call('system.kernel@run');
+		return $this->call('system.kernel@run');
 	}
 
 	/**
@@ -370,12 +391,6 @@ class App {
 	 * @return mixed
 	 */
 	public function __call( $name, $arguments ) {
-
-		/* Call the container if needed */
-		if(method_exists($this->container,$name)){
-			return call_user_func_array([ $this->container , $name ],$arguments);
-		}
-
 		/* Throw an error */
 		throw new \BadMethodCallException(sprintf('Method %s not found',$name));
 	}
