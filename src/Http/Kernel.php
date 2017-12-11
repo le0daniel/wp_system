@@ -91,10 +91,17 @@ class Kernel implements KernelContract {
 		require_once $filename;
 
 		$classes = (array) get_declared_classes();
-		$class = end( $classes );
+		$abstract = end( $classes );
 
 		/* Create the class */
-		list($template,$data) = $this->app->call( $class .'@render' );
+		$object = $this->app->make($abstract);
+
+		/* Check if render method exists */
+		if( ! method_exists($object,'render') ){
+			throw new \Exception('Render method on class ('. get_class($object) .') not found!');
+		}
+
+		list($template,$data) = $this->app->call([$object,'render']);
 
 		/** @var View $view */
 		$view = $this->app->get('view');
