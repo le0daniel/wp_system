@@ -59,6 +59,17 @@ class ShortCode implements ShortCodeContract{
 	protected $cache = true;
 
 	/**
+	 * Run shortcode on the Content
+	 *
+	 * Does not have an impact on performance if
+	 * rendered without context (As it should)
+	 * --> Because plain cache
+	 *
+	 * @var bool
+	 */
+	protected $do_shortcode_on_content = true;
+
+	/**
 	 * ShortCode constructor.
 	 *
 	 * @param string $name
@@ -131,6 +142,8 @@ class ShortCode implements ShortCodeContract{
 	}
 
 	/**
+	 * Hook if you want to add custom data!
+	 *
 	 * @param $attributes
 	 * @param $content
 	 *
@@ -149,8 +162,11 @@ class ShortCode implements ShortCodeContract{
 		}
 
 		/* Always overwrite the content */
-		if( ! empty($content)){
+		if( ! empty($content) && $this->do_shortcode_on_content ){
 			$attributes['content']= do_shortcode( $content );
+		}
+		elseif( empty($content) && ! $this->do_shortcode_on_content ){
+			$attributes['content']= $content;
 		}
 		else{
 			$attributes['content']=null;

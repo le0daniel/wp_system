@@ -35,6 +35,23 @@ class Page {
 	];
 
 	/**
+	 * CamelCase wrapper for WP functions
+	 * @return bool
+	 */
+	public function isFront()   :bool{
+		return ( $this->isPage() && is_front_page() );
+	}
+	public function isPage()    :bool{
+		return ( is_page() );
+	}
+	public function isArchive() :bool{
+		return ( is_archive() );
+	}
+	public function isSingle()  :bool{
+		return ( is_single() );
+	}
+
+	/**
 	 * If posts are loaded
 	 *
 	 * @var bool
