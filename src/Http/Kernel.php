@@ -13,6 +13,7 @@ use Illuminate\Container\Container;
 use le0daniel\System\App;
 use le0daniel\System\Contracts\AddLogicToWordpress;
 use le0daniel\System\Contracts\Kernel as KernelContract;
+use le0daniel\System\View\View;
 use le0daniel\System\WordPress\Context;
 use Monolog\Logger;
 use Whoops\Handler\Handler;
@@ -29,7 +30,7 @@ class Kernel implements KernelContract {
 	/**
 	 * Kernel constructor.
 	 *
-	 * @param Container $app
+	 * @param App $app
 	 */
 	public function __construct( App $app ) {
 		$this->app = $app;
@@ -74,6 +75,29 @@ class Kernel implements KernelContract {
 			$this->app->make('wp.extend')->boot();
 		}
 
+		if( $this->app->config('map_controllers_to_classes',false) ){
+			add_filter("template_include",[$this,'routeByFilename'],99);
+		}
 
+
+	}
+
+	/**
+	 * @param string $filename
+	 */
+	public function routeByFilename(string $filename){
+
+		/* Include File, should have a declared class */
+		require_once $filename;
+
+		$classes = (array) get_declared_classes();
+		$class = end( $classes );
+
+		/* Create the class */
+		list($template,$data) = $this->app->call( $class .'@render' );
+
+		/** @var View $view */
+		$view = $this->app->get('view');
+		$view->show($template,$data,true);
 	}
 }
