@@ -319,7 +319,7 @@ class View {
 		}
 
 		/* Check if full HTML Cache is enabled! */
-		if( $this->plain_cache || $force_plain_cache ){
+		if( ($this->plain_cache || $force_plain_cache) && ! $with_context ){
 
 			$plain_cache_path = $this->getPlainCachePath($filename,$data_to_render);
 

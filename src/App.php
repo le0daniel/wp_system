@@ -36,7 +36,7 @@ use le0daniel\System\View\View;
  *
  * It uses the the Laravel Container as IoC
  */
-class App extends Container{
+class App extends Container {
 
 	/**
 	 * @var string

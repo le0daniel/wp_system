@@ -74,9 +74,12 @@ class Context implements CastArray, Hashable {
 	public function getHash(): string {
 
 		$hash = '';
+		//return md5('asdff');
 
 		/* Loop through elements */
-		foreach ($this->toArray() as $object){
+		foreach ($this->toArray() as $name=>$object){
+
+			//if($name === 'site')continue;
 
 			if( $object instanceof Hashable ){
 				$hash .= $object->getHash();
