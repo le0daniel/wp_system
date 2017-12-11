@@ -10,6 +10,8 @@ namespace le0daniel\System\Http;
 
 
 use Illuminate\Container\Container;
+use le0daniel\System\App;
+use le0daniel\System\Contracts\AddLogicToWordpress;
 use le0daniel\System\Contracts\Kernel as KernelContract;
 use le0daniel\System\WordPress\Context;
 use Monolog\Logger;
@@ -22,15 +24,15 @@ class Kernel implements KernelContract {
 	/**
 	 * @var Container
 	 */
-	protected $container;
+	protected $app;
 
 	/**
 	 * Kernel constructor.
 	 *
-	 * @param Container $container
+	 * @param Container $app
 	 */
-	public function __construct( Container $container ) {
-		$this->container = $container;
+	public function __construct( App $app ) {
+		$this->app = $app;
 	}
 
 	/**
@@ -39,7 +41,7 @@ class Kernel implements KernelContract {
 	public function boot() {
 
 		/* Register the context as singleton */
-		$this->container->singleton(Context::class);
+		$this->app->singleton(Context::class);
 
 		/* Create The error handler */
 		$this->registerErrorHandler();
@@ -53,10 +55,10 @@ class Kernel implements KernelContract {
 
 
 		if( WP_DEBUG ){
-			$whoops = $this->container->make(Run::class);
-			$whoops->pushHandler($this->container->make(PrettyPageHandler::class));
+			$whoops = $this->app->make(Run::class);
+			$whoops->pushHandler($this->app->make(PrettyPageHandler::class));
 			$whoops->register();
-			$this->container->instance('error.handler',$whoops);
+			$this->app->instance('error.handler',$whoops);
 			assert_options(ASSERT_ACTIVE, true);
 		}
 
@@ -66,6 +68,12 @@ class Kernel implements KernelContract {
 	 * Run the Application
 	 */
 	public function run() {
-		$this->container->make('wp.extend')->boot();
+
+		/* Run extender if bound! */
+		if( $this->app->bound(AddLogicToWordpress::class) ){
+			$this->app->make('wp.extend')->boot();
+		}
+
+
 	}
 }

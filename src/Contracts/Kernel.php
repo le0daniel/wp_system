@@ -10,11 +10,12 @@ namespace le0daniel\System\Contracts;
 
 
 use Illuminate\Container\Container;
+use le0daniel\System\App;
 
 interface Kernel {
 
 	/* Construct */
-	public function __construct(Container $container);
+	public function __construct(App $container);
 
 	/* Boot */
 	public function boot();

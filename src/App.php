@@ -383,6 +383,24 @@ class App extends Container {
 	}
 
 	/**
+	 * Check if called in command line
+	 *
+	 * @return bool
+	 */
+	public function isRunningInCliMode():bool{
+		return ( php_sapi_name() === 'cli' );
+	}
+
+	/**
+	 * Check if running in WP Cli Mode
+	 *
+	 * @return bool
+	 */
+	public function isRunningInWpCliMode():bool{
+		return ( $this->isRunningInCliMode() && self::isDefinedOrDefine('WP_CLI',false) );
+	}
+
+	/**
 	 * Call on the container
 	 *
 	 * @param $name

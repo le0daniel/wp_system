@@ -10,6 +10,7 @@ namespace le0daniel\System\Console;
 
 
 use Illuminate\Container\Container;
+use le0daniel\System\App;
 use le0daniel\System\Console\Commands\ClearCacheInteractive;
 use le0daniel\System\Console\Commands\ClearCacheVC;
 use le0daniel\System\Console\Commands\MakePostType;
@@ -39,24 +40,24 @@ class Kernel implements KernelContract {
 	];
 
 	/**
-	 * @var Container
+	 * @var App
 	 */
-	private $container;
+	private $app;
 
 	/**
 	 * Kernel constructor.
 	 *
-	 * @param Container $container
+	 * @param App $app
 	 */
-	public function __construct(Container $container) {
-		$this->container = $container;
+	public function __construct(App $app) {
+		$this->app = $app;
 	}
 
 	/**
 	 * Register Bindings
 	 */
 	public function boot() {
-		$this->container->singleton('system.console',Application::class);
+		$this->app->singleton('system.console',Application::class);
 	}
 
 	/**
@@ -65,17 +66,27 @@ class Kernel implements KernelContract {
 	public function run() {
 
 		/* Don't run if on WP CLI */
-		if( defined('WP_CLI') && WP_CLI === true ){
+		if( $this->app->isRunningInWpCliMode() ){
+			$this->runWpCli();
 			return;
 		}
 
 		/** @var Application $app */
-		$app = $this->container->make('system.console');
+		$app = $this->app->make('system.console');
 
 		array_walk($this->commands,function(string $abstract)use($app){
-			$app->add( $this->container->make($abstract) );
+			$app->add( $this->app->make($abstract) );
 		});
 
 		$app->run();
+	}
+
+	/**
+	 * Run when in WP mode
+	 */
+	protected function runWpCli(){
+
+
+		return;
 	}
 }
