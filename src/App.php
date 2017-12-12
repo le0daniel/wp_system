@@ -78,9 +78,6 @@ class App extends Container {
 	 */
 	private function __construct() {
 
-		/* Set Boot time */
-		self::$boot_time = microtime(true);
-
 		/* Set Root Dir */
 		if( ! isset(self::$root_dir) ){
 			self::$root_dir = (isset($GLOBALS['root_dir']))? realpath($GLOBALS['root_dir']) : realpath(__DIR__.'/..');
@@ -139,6 +136,9 @@ class App extends Container {
 		if( function_exists('app')){
 			return false;
 		}
+
+		/* Set Boot time */
+		self::$boot_time = microtime(true);
 
 		/* Set Dir */
 		if( empty($root_dir) ){

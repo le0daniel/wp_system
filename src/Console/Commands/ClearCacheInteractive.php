@@ -47,6 +47,7 @@ class ClearCacheInteractive extends Command{
 		$dirs = array_map(function($value){return basename($value);},$dirs);
 		array_unshift($dirs,'*');
 
+		/* Set all if flag is set */
 		if( $input->getOption('all') === true ){
 			$dir = '*';
 		}

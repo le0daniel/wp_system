@@ -392,17 +392,42 @@ class View {
 		/* Render and Output */
 		$html = $this->render($filename,$data);
 
-		if( defined('EXPOSE_DURATION') && EXPOSE_DURATION ){
+		/* Expose duration before outputing anything */
+		if( $this->shouldShowDurationHeader() ){
 			header('X-Duration: '.app()->getUpTime());
 		}
 
-
+		/* Output */
 		echo $html;
 
 		/* Terminate */
 		if($terminate){
 			die();
 		}
+	}
+
+	/**
+	 * Check if should show the duration
+	 * From App::init() -> Now
+	 *
+	 * @return bool
+	 */
+	protected function shouldShowDurationHeader():bool{
+
+		/* Check if Expose Duration is set to true */
+		if( defined('EXPOSE_DURATION') && EXPOSE_DURATION ){
+			return true;
+		}
+
+		/* Check if the force duration header is set to true */
+		$header_name = 'HTTP_FORCE_EXPOSE_DURATION';
+		$unsafe_header = isset( $_SERVER[$header_name] )? $_SERVER[$header_name] : false;
+
+		if($unsafe_header === 'true'){
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
@@ -428,7 +453,7 @@ class View {
 	/**
 	 * Constructs the context
 	 *
-	 * @return Array
+	 * @return array
 	 */
 	protected function getContext():array {
 		if( ! is_object($this->context) ){
