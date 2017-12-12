@@ -45,12 +45,13 @@ class TwigFilters {
 
 	/**
 	 * @param string $file
+	 * @param bool $rewrite
 	 *
 	 * @return string
 	 */
-	public static function mix(string $file):string{
+	public static function mix(string $file,bool $rewrite = false):string{
 		/* Get the file name */
-		$file = Path::getMixFilename($file);
+		$file = Path::getMixFilename($file,$rewrite);
 
 		/* Construct URL */
 		return self::staticPath($file);
@@ -74,7 +75,6 @@ class TwigFilters {
 	 * @throws \Exception
 	 */
 	public static function translate(string $key):string{
-
 		return Language::translate($key);
 	}
 

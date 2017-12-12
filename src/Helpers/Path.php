@@ -73,10 +73,11 @@ class Path {
 	 * Returns the mix file name
 	 *
 	 * @param string $file
+	 * @param bool $rewrite
 	 *
 	 * @return string
 	 */
-	public static function getMixFilename(string $file=''):string{
+	public static function getMixFilename(string $file='',bool $rewrite = false):string{
 		/* Normalize Filename */
 		$normalized_name =  '/' . rtrim( $file,'/');
 
@@ -85,11 +86,21 @@ class Path {
 			self::loadMixFile();
 		}
 
-		/* Return String */
-		if(array_key_exists( $normalized_name ,self::$mix_manifest)){
-			return self::$mix_manifest[ $normalized_name ];
+		/* Not versioned by mix */
+		if( ! array_key_exists( $normalized_name ,self::$mix_manifest) ){
+			return $file;
 		}
-		return $file;
+
+		$versioned_file = self::$mix_manifest[ $normalized_name ];
+
+		/* Check if should be rewritten */
+		if( ! $rewrite ){
+			return $versioned_file;
+		}
+
+		$key = substr( $versioned_file , strlen($normalized_name) + 5 );
+
+		return '/' .$key .$normalized_name;
 	}
 
 	/**
