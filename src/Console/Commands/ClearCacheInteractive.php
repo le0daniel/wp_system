@@ -14,6 +14,7 @@ use le0daniel\System\Helpers\Path;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Exception\RuntimeException;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
@@ -30,7 +31,8 @@ class ClearCacheInteractive extends Command{
 		$this
 			->setName('clear:cache')
 			->setDescription('Clear cache')
-			->setHelp('Interactively clear cache');
+			->setHelp('Interactively clear cache')
+			->addOption('all','a',InputOption::VALUE_NONE,'Force all');
 	}
 
 	/**
@@ -45,14 +47,21 @@ class ClearCacheInteractive extends Command{
 		$dirs = array_map(function($value){return basename($value);},$dirs);
 		array_unshift($dirs,'*');
 
-		$helper = $this->getHelper('question');
-		$question = new ChoiceQuestion(
-			'Please select your favorite color [default <info>*</info>]:',
-			$dirs,
-			0
-		);
-		$question->setErrorMessage('Cache %s is invalid.');
-		$dir = $helper->ask($input, $output, $question);
+		if( $input->getOption('all') === true ){
+			$dir = '*';
+		}
+		else{
+			$helper = $this->getHelper('question');
+			$question = new ChoiceQuestion(
+				'Please select your favorite color [default <info>*</info>]:',
+				$dirs,
+				0
+			);
+			$question->setErrorMessage('Cache %s is invalid.');
+			$dir = $helper->ask($input, $output, $question);
+		}
+
+		/* Clear input */
 		unset($dirs[0]);
 
 		if( $dir === '*' ){

@@ -75,6 +75,7 @@ class Kernel implements KernelContract {
 			$this->app->make('wp.extend')->boot();
 		}
 
+		/* Add Class Controllers */
 		if( $this->app->config('map_controllers_to_classes',false) ){
 			add_filter("template_include",[$this,'routeByFilename'],99);
 		}
@@ -84,6 +85,8 @@ class Kernel implements KernelContract {
 
 	/**
 	 * @param string $filename
+	 *
+	 * @throws \Exception
 	 */
 	public function routeByFilename(string $filename){
 
@@ -106,5 +109,6 @@ class Kernel implements KernelContract {
 		/** @var View $view */
 		$view = $this->app->get('view');
 		$view->show($template,$data,true);
+		die();
 	}
 }
