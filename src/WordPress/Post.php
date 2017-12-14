@@ -10,6 +10,7 @@ namespace le0daniel\System\WordPress;
 
 
 use Carbon\Carbon;
+use Illuminate\Support\Collection;
 use le0daniel\System\Contracts\Hashable;
 use le0daniel\System\Helpers\TwigFunctions;
 use le0daniel\System\Traits\isGettable;
@@ -51,6 +52,39 @@ class Post {
 	 * @var array
 	 */
 	protected $_cached_meta;
+
+	/**
+	 * --------------------------------------------------------
+	 * Static Helpers
+	 * --------------------------------------------------------
+	 */
+
+	/**
+	 * @param array $args
+	 * @return bool|Collection
+	 */
+	public static function query(array $args){
+
+		$query = new \WP_Query($args);
+
+		if( ! $query->have_posts() ){
+			return false;
+		}
+
+		$array = [];
+
+		while ( $query->have_posts() ){
+			$query->the_post();
+			$array[] = new self($query->post);
+		}
+
+		/* Restore */
+		wp_reset_postdata();
+
+		/* Return */
+		return collect($array);
+	}
+
 
 	/**
 	 * Post constructor.

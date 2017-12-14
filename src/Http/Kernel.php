@@ -12,6 +12,7 @@ namespace le0daniel\System\Http;
 use Illuminate\Container\Container;
 use le0daniel\System\App;
 use le0daniel\System\Contracts\AddLogicToWordpress;
+use le0daniel\System\Contracts\Controller;
 use le0daniel\System\Contracts\Kernel as KernelContract;
 use le0daniel\System\View\View;
 use le0daniel\System\WordPress\Context;
@@ -54,7 +55,7 @@ class Kernel implements KernelContract {
 	 */
 	protected function registerErrorHandler(){
 
-
+		/* Setup pretty error handler */
 		if( WP_DEBUG ){
 			$whoops = $this->app->make(Run::class);
 			$whoops->pushHandler($this->app->make(PrettyPageHandler::class));
@@ -98,6 +99,12 @@ class Kernel implements KernelContract {
 
 		/* Create the class */
 		$object = $this->app->make($abstract);
+
+		if ( ! $object instanceof Controller ){
+			$this->app->log()->warning(sprintf(
+				'The Controller [%s] should implement the controller interface!',get_class($object)
+			));
+		}
 
 		/* Check if render method exists */
 		if( ! method_exists($object,'render') ){

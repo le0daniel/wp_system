@@ -133,6 +133,7 @@ class App extends Container {
 	 */
 	public static function init(string $root_dir = null):bool{
 
+		/* Check if App function already exposed! */
 		if( function_exists('app')){
 			return false;
 		}
@@ -157,6 +158,7 @@ class App extends Container {
 		require __DIR__.'/functions/app.php';
 		require __DIR__.'/functions/resolve.php';
 		require __DIR__.'/functions/view.php';
+		require __DIR__.'/functions/config.php';
 
 		/**
 		 * Set Statics
@@ -212,15 +214,19 @@ class App extends Container {
 			return;
 		}
 
+		if( self::isDefinedOrDefine('DISABLE_SECURITY_HEADERS',false) ){
+			return;
+		}
+
 		/* No iframe */
 		header('X-Frame-Options: SAMEORIGIN');
 
 		/* Currently disabled */
-		//header('Strict-Transport-Security','');
-		//header('Content-Security-Policy','script-src \'self\'') //https://scotthelme.co.uk/content-security-policy-an-introduction/;
-		//header('X-XSS-Protection','1; mode=block');
-		//header('X-Content-Type-Options','X-Content-Type-Options: nosniff');
-		//header('Referrer-Policy','no-referrer');
+		//header('Strict-Transport-Security: ');
+		//header('Content-Security-Policy: script-src \'self\' ') //https://scotthelme.co.uk/content-security-policy-an-introduction/;
+		//header('X-XSS-Protection: 1; mode=block');
+		//header('X-Content-Type-Options: X-Content-Type-Options: nosniff');
+		//header('Referrer-Policy: no-referrer');
 	}
 
 	/**

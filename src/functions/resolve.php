@@ -8,15 +8,15 @@
  *
  * @return mixed
  */
-function resolve($abstract = null,array $params=[]){
 
-	$app = \le0daniel\System\App::getInstance();
-
-	/* Resolve */
-	if(is_string($abstract)){
-		return $app->make($abstract,$params);
+if( ! function_exists('resolve') ) {
+	/**
+	 * @param string $abstract
+	 * @param array $params
+	 *
+	 * @return mixed
+	 */
+	function resolve(string $abstract, array $params = [] ) {
+		return app()->make( $abstract, $params );
 	}
-
-	/* Return Container Instance */
-	return $app;
 }
