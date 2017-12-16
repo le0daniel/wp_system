@@ -57,6 +57,7 @@ class ShortCode implements ShortCodeContract{
 	 * @var bool
 	 */
 	protected $cache = true;
+	protected $max_cache_age = -1;
 
 	/**
 	 * Run shortcode on the Content
@@ -198,6 +199,6 @@ class ShortCode implements ShortCodeContract{
 		 * by default, and should normally not have access
 		 * to it!
 		 */
-		return view()->render( $this->getTemplatePath(), $attributes, $this->render_with_context, $plain_cache);
+		return view()->render( $this->getTemplatePath(), $attributes, $this->render_with_context, $plain_cache,$this->max_cache_age);
 	}
 }

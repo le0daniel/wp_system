@@ -298,10 +298,11 @@ class View {
 	 * @param array $data
 	 * @param bool $with_context
 	 * @param bool $force_plain_cache
+	 * @param int $cache_duration
 	 *
 	 * @return string
 	 */
-	public function render(string $filename,array $data=[], bool $with_context = true, bool $force_plain_cache = false):string {
+	public function render(string $filename,array $data=[], bool $with_context = true, bool $force_plain_cache = false, int $cache_duration = -1):string {
 
 		$start = microtime(true);
 		$data_to_render = $this->mergeData($data);
@@ -323,7 +324,7 @@ class View {
 
 			$plain_cache_path = $this->getPlainCachePath($filename,$data_to_render);
 
-			if( file_exists($plain_cache_path) ){
+			if( $this->cacheFileIsValid($plain_cache_path,$cache_duration)  ){
 				return (string) file_get_contents($plain_cache_path);
 			}
 
@@ -375,6 +376,35 @@ class View {
 		$plain_cache_name = md5($template.serialize($data)).'.plain.html';
 		$cache_path = Path::cachePath('rendered/'.$plain_cache_name);
 		return $cache_path;
+	}
+
+	/**
+	 * @param string $filename
+	 * @param int $max_age
+	 *
+	 * @return bool
+	 */
+	protected function cacheFileIsValid(string $filename,int $max_age = -1):bool{
+
+		/* File does not exist */
+		if( ! file_exists($filename) ){
+			return false;
+		}
+
+		/* No max age defined */
+		if( $max_age <= 0){
+			return true;
+		}
+
+		/* Check file time */
+		$touched = filemtime($filename);
+		if( (time() - $touched) > ($max_age * 60) ){
+			unlink($filename);
+			return false;
+		}
+
+		return true;
+
 	}
 
 	/**
