@@ -10,6 +10,7 @@ namespace le0daniel\System;
 
 
 use Carbon\Carbon;
+use Dotenv\Dotenv;
 use Illuminate\Container\Container;
 use le0daniel\System\Contracts\AddLogicToWordpress;
 use le0daniel\System\Contracts\ServiceProvider;
@@ -131,7 +132,8 @@ class App extends Container {
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public static function init(string $root_dir = null):bool{
+	public static function init(string $root_dir = null):bool
+	{
 
 		/* Check if App function already exposed! */
 		if( function_exists('app')){
@@ -174,6 +176,21 @@ class App extends Container {
 		}
 
 		return true;
+	}
+
+	/**
+	 * @param string $root_dir
+	 */
+	public static function loadEnv(string $root_dir){
+		\Env::init();
+
+		global $dotenv;
+		$dotenv = new Dotenv($root_dir);
+		if (file_exists($root_dir . '/.env')) {
+			$dotenv->load();
+			$dotenv->required(['DB_NAME', 'DB_USER', 'DB_PASSWORD', 'WP_HOME', 'WP_SITEURL']);
+		}
+
 	}
 
 	/**

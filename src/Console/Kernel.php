@@ -17,6 +17,7 @@ use le0daniel\System\Console\Commands\MakePostType;
 use le0daniel\System\Console\Commands\MakeShortCut;
 use le0daniel\System\Console\Commands\TakeSiteOffline;
 use le0daniel\System\Console\Commands\TakeSiteOnline;
+use le0daniel\System\Console\Commands\TestDatabase;
 use le0daniel\System\Contracts\Kernel as KernelContract;
 use Symfony\Component\Console\Application;
 
@@ -34,6 +35,7 @@ class Kernel implements KernelContract {
 		MakePostType::class,
 		TakeSiteOffline::class,
 		TakeSiteOnline::class,
+		TestDatabase::class,
 	];
 
 	/**
