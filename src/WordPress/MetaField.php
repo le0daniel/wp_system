@@ -57,7 +57,12 @@ class MetaField {
 	public function __toString():string {
 
 		if ( is_string($this->attributes) ){
+
 			return $this->attributes;
+		}
+
+		if( empty($this->attributes) ){
+			return false;
 		}
 
 		return json_encode($this->attributes);
