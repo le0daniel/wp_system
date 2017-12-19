@@ -29,12 +29,9 @@ class Kernel implements KernelContract {
 	 */
 	private $commands = [
 		MakeShortCut::class,
-
 		ClearCacheVC::class,
 		ClearCacheInteractive::class,
-
 		MakePostType::class,
-
 		TakeSiteOffline::class,
 		TakeSiteOnline::class,
 	];
@@ -73,8 +70,14 @@ class Kernel implements KernelContract {
 
 		/** @var Application $app */
 		$app = $this->app->make('system.console');
+		$commands = $this->commands;
 
-		array_walk($this->commands,function(string $abstract)use($app){
+		/* Add custom commands */
+		if( ! empty( $this->app->config('commands',[]) ) ){
+			$commands = array_merge($this->app->config('commands',[]),$commands);
+		}
+
+		array_walk($commands,function(string $abstract)use($app){
 			$app->add( $this->app->make($abstract) );
 		});
 
