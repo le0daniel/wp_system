@@ -52,7 +52,7 @@ class App extends Container {
 	/**
 	 * @var string
 	 */
-	public static $config_dir = __DIR__.'/../config';
+	public static $config_dir;
 
 	/**
 	 * @var float
@@ -64,14 +64,12 @@ class App extends Container {
 	 */
 	public static $root_dir;
 
-	/**
-	 * @var array
-	 */
+	/** @var  array */
 	protected $config;
+	/** @var bool  */
+	protected $_config_is_default = false;
 
-	/**
-	 * @var array
-	 */
+	/** @var array  */
 	protected $service_providers = [];
 
 	/**
@@ -104,8 +102,31 @@ class App extends Container {
 	 */
 	protected function loadConfig(){
 
-		/* Include Config file */
-		$this->config = require self::$config_dir.'/app.php';
+		/**
+		 * Check if config was already loaded!
+		 */
+		if( isset($this->config) ){
+			return;
+		}
+
+
+		/** Load custom config file */
+		if( isset(self::$config_dir) && file_exists(self::$config_dir.'/system.php') ){
+			/* Include Config file */
+			$this->config = require self::$config_dir.'/system.php';
+		}
+
+		/** Fallback for old 'app' config file */
+		elseif (isset(self::$config_dir) && file_exists(self::$config_dir.'/app.php')){
+			$this->config = require self::$config_dir.'/app.php';
+		}
+
+		/** Fallback to default config */
+		else{
+			/* Include default Config file */
+			$this->config = require __DIR__.'/../config/app.php';
+			$this->_config_is_default = true;
+		}
 
 		/* Set Service Providers */
 		$this->service_providers = $this->config['providers'];
@@ -353,6 +374,12 @@ class App extends Container {
 	 * Boot
 	 */
 	protected function boot(){
+
+		/** Log if default config was used! */
+		if($this->_config_is_default){
+			$this->log()->debug('Default config was used!');
+		}
+
 		/**
 		 * Handle global stuff below, all the
 		 * rest should be handled by the dedicated
