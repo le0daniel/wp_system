@@ -162,6 +162,9 @@ class MakeShortCut extends Command
 		/* Generate the twig template */
 		$this->generateTwigTemplate();
 
+		/* Generate Scss Template */
+		$this->generateScssTemplate();
+
 		/* Show Output */
 		$output->writeln('<info>Successfully generated</info>');
 		$output->writeln('<info>Don\'t forget to register the Class in App\\WordPressExtender</info>');
@@ -185,6 +188,13 @@ class MakeShortCut extends Command
 	}
 
 	/**
+	 * @return string
+	 */
+	protected function getScssSavePath():string{
+		return $this->theme_path.'/resources/assets/scss/shortcodes/'.$this->shortcut['slug'].'.scss';
+	}
+
+	/**
 	 * Create ShortCodes Dir
 	 */
 	protected function checkAndMakeDir(){
@@ -192,7 +202,10 @@ class MakeShortCut extends Command
 			mkdir($this->theme_path.'/App/ShortCodes',0777,true);
 		}
 		if( ! file_exists($this->theme_path.'/resources/views/shortcodes') ){
-			mkdir($this->theme_path.'/resources/views/shortcodes/',0777,true);
+			mkdir($this->theme_path.'/resources/views/shortcodes',0777,true);
+		}
+		if( ! file_exists($this->theme_path.'/resources/assets/scss/shortcodes') ){
+			mkdir($this->theme_path.'/resources/assets/scss/shortcodes',0777,true);
 		}
 	}
 
@@ -212,11 +225,17 @@ class MakeShortCut extends Command
 		/* Implemented $interfaces and traits */
 		$interfaces = [];
 		$traits = [];
-		$content = [
-			PHP_EOL,
-			sprintf('protected $name = \'%s\';',$this->shortcut['name']),
-			sprintf('protected $slug = \'%s\';',$this->shortcut['slug']),
-		];
+		$content = array_merge(
+			File::generateCommentBlockArray([
+				'The name (& slug) should not be changed as they are used to find the',
+				'template paths!'
+			]),
+			[
+				sprintf('protected $name = \'%s\';',$this->shortcut['name']),
+				sprintf('protected $slug = \'%s\';',$this->shortcut['slug']),
+			]
+		);
+
 		if($this->is_vc_component){
 			$interfaces[] = 'VisualComposerComponent';
 			$traits[] = 'isVisualComposerComponent';
@@ -314,6 +333,27 @@ class MakeShortCut extends Command
 
 		$compiled = implode(PHP_EOL,$lines);
 		file_put_contents($this->getTwigTemplateSavePath(),$compiled);
+	}
+
+	/**
+	 * Generate Scss File
+	 */
+	protected function generateScssTemplate(){
+		$now = Carbon::now();
+
+		$lines = [
+			'/** ',
+			' * This is the Template file for the Shortcode '.$this->shortcut['name'],
+			' * ',
+			' * The identifiere is: '.$this->shortcut['slug'],
+			' * ',
+			' * Date: '.$now->toDateString(),
+			' * Time: '.$now->toTimeString(),
+			' */',
+		];
+
+		$compiled = implode(PHP_EOL,$lines);
+		file_put_contents($this->getScssSavePath(),$compiled);
 	}
 
 }
