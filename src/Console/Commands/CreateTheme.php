@@ -201,7 +201,7 @@ class CreateTheme extends Command{
 		$array = [
 			'autoload'=>[
 				'psr-4' => [
-					$this->namespace.'\\' => 'web/app/themes/'.$this->slug.'/',
+					$this->namespace.'\\' => 'public_html/app/themes/'.$this->slug.'/',
 				]
 			]
 		];
