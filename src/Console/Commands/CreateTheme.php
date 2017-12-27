@@ -68,6 +68,9 @@ class CreateTheme extends Command{
 		/* Update composer Json to support PSR-4 for the Theme */
 		$this->updateComposerJson();
 
+		/* Modify Extender File */
+		$this->modifyConfigFile();
+
 		/* Update Webpack Mix for theme */
 		$this->updateWebpackMix();
 
@@ -212,6 +215,22 @@ class CreateTheme extends Command{
 		/* Save */
 		$compiled = json_encode($composer_json,JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES);
 		file_put_contents($file_path,$compiled);
+	}
+
+	/**
+	 * Update Path to Match Theme
+	 */
+	protected function modifyConfigFile(){
+
+		$find = '/* %ThemeName% */';
+		$replace = sprintf('\le0daniel\System\Helpers\Path::$theme_dirname =  \'%s\';',$this->slug);
+		$file_path = $this->root_dir.'/config/application.php';
+
+		$content = file_get_contents($file_path);
+
+		$compiled = str_replace($find,$replace,$content);
+		file_put_contents($file_path,$compiled);
+
 	}
 
 	/**

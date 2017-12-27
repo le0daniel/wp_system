@@ -345,9 +345,7 @@ class View {
 		$duration = microtime(true) - $start;
 
 		if( $duration > 2 ){
-			/** @var Logger $logger */
-			$logger = $this->container->make('system.log');
-			$logger->warning('Render time for '.$filename.' over 2s!',['Server'=>$_SERVER]);
+			app()->log()->warning('Render time for '.$filename.' over 2s!',['Server'=>$_SERVER]);
 		}
 
 		return $html;

@@ -43,20 +43,13 @@ class Path {
 	public static $theme_dirname = '';
 
 	/**
-	 * Returns webroot
+	 * Returns webroot dir
 	 * @return string
 	 */
 	public static function webroot(){
 
 		if( ! isset(self::$webroot) ){
-
-			if( defined('WP_CONTENT_DIR') ){
-				self::$webroot = WP_CONTENT_DIR;
-			}
-			else{
-				self::$webroot = self::$root_dir .'/web';
-			}
-
+			self::$webroot = $GLOBALS['webroot_dir'];
 		}
 
 		return self::$webroot;
@@ -90,6 +83,16 @@ class Path {
 	 */
 	public static function themesPath($path=''):string{
 		return rtrim(self::webroot().'/app/themes/'.$path,'/');
+	}
+
+	/**
+	 * Get path in active Theme Dir
+	 * @param string $path
+	 *
+	 * @return string
+	 */
+	public static function activeThemePath(string $path=''):string{
+		return rtrim(self::webroot().'/app/themes/'. self::$theme_dirname .'/'.$path,'/');
 	}
 
 	/**
@@ -132,7 +135,7 @@ class Path {
 	public static function loadMixFile(){
 		$manifest = [];
 
-		$path = self::themesPath(self::$theme_dirname.'/static/mix-manifest.json');
+		$path = self::activeThemePath('static/mix-manifest.json');
 
 		if( file_exists($path) ){
 			$manifest = json_decode(file_get_contents($path),true);
