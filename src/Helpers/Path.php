@@ -16,6 +16,9 @@ class Path {
 	 */
 	public static $root_dir = '';
 
+	/** @var string */
+	public static $webroot;
+
 	/**
 	 * @var array
 	 */
@@ -38,6 +41,26 @@ class Path {
 	 * @var string
 	 */
 	public static $theme_dirname = '';
+
+	/**
+	 * Returns webroot
+	 * @return string
+	 */
+	public static function webroot(){
+
+		if( ! isset(self::$webroot) ){
+
+			if( defined('WP_CONTENT_DIR') ){
+				self::$webroot = WP_CONTENT_DIR;
+			}
+			else{
+				self::$webroot = self::$root_dir .'/web';
+			}
+
+		}
+
+		return self::$webroot;
+	}
 
 	/**
 	 * Check and create required dirs
@@ -66,7 +89,7 @@ class Path {
 	 * @return string
 	 */
 	public static function themesPath($path=''):string{
-		return rtrim(self::$root_dir.'/web/app/themes/'.$path,'/');
+		return rtrim(self::webroot().'/app/themes/'.$path,'/');
 	}
 
 	/**
