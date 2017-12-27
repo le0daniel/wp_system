@@ -48,7 +48,7 @@ class TestDatabase extends command{
 		}
 
 		/* Load Dot Env */
-		App::loadEnv(Path::$root_dir);
+		//App::loadEnv(Path::$root_dir);
 
 		$output->writeln(sprintf('<info>Test database: %s</info>',  env('DB_NAME','NOT SET!')));
 		$output->writeln(sprintf('<info>> User   : %s</info>',      env('DB_USER','NOT SET!')));

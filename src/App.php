@@ -9,22 +9,10 @@
 namespace le0daniel\System;
 
 
-use Carbon\Carbon;
-use Dotenv\Dotenv;
 use Illuminate\Container\Container;
-use le0daniel\System\Contracts\AddLogicToWordpress;
 use le0daniel\System\Contracts\ServiceProvider;
-use le0daniel\System\Contracts\ShortCode;
 use le0daniel\System\Helpers\Path;
-use le0daniel\System\ServiceProviders\Log;
-use le0daniel\System\WordPress\Context;
-use le0daniel\System\WordPress\MetaField;
-use le0daniel\System\WordPress\Page;
-use le0daniel\System\WordPress\Post;
-use le0daniel\System\WordPress\Site;
-use le0daniel\System\WordPress\User;
-use Monolog\Formatter\LineFormatter;
-use Monolog\Handler\StreamHandler;
+use le0daniel\System\ServiceProviders\WordPress;
 use Monolog\Logger;
 use le0daniel\System\Contracts\Kernel;
 use le0daniel\System\Http\Kernel as HttpKernel;
@@ -69,8 +57,14 @@ class App extends Container {
 	/** @var bool  */
 	protected $_config_is_default = false;
 
-	/** @var array  */
-	protected $service_providers = [];
+	/**
+	 * Mandatory Service Providers!
+	 *
+	 * @var array
+	 */
+	protected $service_providers = [
+		WordPress::class
+	];
 
 	/**
 	 * App constructor.
@@ -129,7 +123,7 @@ class App extends Container {
 		}
 
 		/* Set Service Providers */
-		$this->service_providers = $this->config['providers'];
+		$this->service_providers = array_merge($this->config['providers'],$this->service_providers);
 	}
 
 	/**
@@ -203,15 +197,6 @@ class App extends Container {
 	 * @param string $root_dir
 	 */
 	public static function loadEnv(string $root_dir){
-		\Env::init();
-
-		global $dotenv;
-		$dotenv = new Dotenv($root_dir);
-		if (file_exists($root_dir . '/.env')) {
-			$dotenv->load();
-			$dotenv->required(['DB_NAME', 'DB_USER', 'DB_PASSWORD', 'WP_HOME', 'WP_SITEURL']);
-		}
-
 	}
 
 	/**
@@ -349,17 +334,6 @@ class App extends Container {
 	 * Register Aliases
 	 */
 	protected function registerAliases(){
-
-		/* WP Aliases */
-		$this->alias(Context::class,             'wp.context');
-		$this->alias(MetaField::class,           'wp.metafield');
-		$this->alias(Page::class,                'wp.page');
-		$this->alias(Post::class,                'wp.post');
-		$this->alias(ShortCode::class,           'wp.shortcode');
-		$this->alias(Site::class,                'wp.site');
-		$this->alias(User::class,                'wp.user');
-		$this->alias(AddLogicToWordpress::class, 'wp.extend');
-
 		/* Tools */
 		$this->alias(View::class,                'view');
 

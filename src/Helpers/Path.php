@@ -170,6 +170,15 @@ class Path {
 	}
 
 	/**
+	 * @param string $path
+	 *
+	 * @return string
+	 */
+	public static function configPath(string $path=''):string{
+		return rtrim(self::$root_dir.'/config/'.$path,'/' );
+	}
+
+	/**
 	 * @param array ...$strings
 	 *
 	 * @return string
