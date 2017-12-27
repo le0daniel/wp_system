@@ -174,7 +174,7 @@ class App extends Container {
 
 		require __DIR__.'/functions/app.php';
 		require __DIR__.'/functions/resolve.php';
-		require __DIR__.'/functions/paths.php.php';
+		require __DIR__.'/functions/paths.php';
 		require __DIR__.'/functions/view.php';
 		require __DIR__.'/functions/config.php';
 
