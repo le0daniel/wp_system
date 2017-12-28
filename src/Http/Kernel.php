@@ -64,6 +64,10 @@ class Kernel implements KernelContract {
 			assert_options(ASSERT_ACTIVE, true);
 		}
 
+		else{
+			/** !TODO: Create Error Handler / Include Sentry.io */
+		}
+
 	}
 
 	/**

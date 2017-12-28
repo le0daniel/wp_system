@@ -70,8 +70,8 @@ class Kernel implements KernelContract {
 			return;
 		}
 
-		/** @var Application $app */
-		$app = $this->app->make('system.console');
+		/** @var Application $console */
+		$console = $this->app->make('system.console');
 		$commands = $this->commands;
 
 		/* Add custom commands */
@@ -79,18 +79,18 @@ class Kernel implements KernelContract {
 			$commands = array_merge($this->app->config('commands',[]),$commands);
 		}
 
-		array_walk($commands,function(string $abstract)use($app){
-			$app->add( $this->app->make($abstract) );
+		array_walk($commands,function(string $abstract)use($console){
+			$console->add( $this->app->make($abstract) );
 		});
 
-		$app->run();
+		$console->run();
 	}
 
 	/**
 	 * Run when in WP mode
 	 */
 	protected function runWpCli(){
-
+		/* Configure WP-CLI */
 
 		return;
 	}
