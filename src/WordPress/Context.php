@@ -21,39 +21,24 @@ use Timber\Request;
 class Context implements CastArray, Hashable {
 
 	/**
-	 * @var Site|string
+	 * @var array
 	 */
-	public $site = 'wp.site';
+	protected $cast = [
+		'user'=>'wp.user',
+		'page'=>'wp.page',
+		'site'=>'wp.site',
+	];
 
 	/**
-	 * @var Page|string
+	 * @var bool
 	 */
-	public $page = 'wp.page';
+	protected $_is_resolved = false;
 
 	/**
-	 * @var User|string
+	 * Resolve the cast array!
 	 */
-	public $user = 'wp.user';
-
-	/**
-	 * Context constructor.
-	 */
-	public function __construct() {
-		/* Resolve */
-		$this->site = resolve($this->site);
-		$this->page = resolve($this->page);
-		$this->user = resolve($this->user);
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function castBase():array{
-		return [
-			'site'=>$this->site,
-			'page'=>$this->page,
-			'user'=>$this->user,
-		];
+	protected function resolve(){
+		$this->cast = array_map('resolve',$this->cast);
 	}
 
 	/**
@@ -63,32 +48,22 @@ class Context implements CastArray, Hashable {
 	 */
 	public function toArray():array
 	{
+		if( ! $this->_is_resolved ){
+			$this->resolve();
+			$this->_is_resolved = true;
+		}
+
 		return $this->castBase();
 	}
 
 	/**
-	 * Return Hash
+	 * Return Hash, used for caching!
 	 *
 	 * @return string
 	 */
 	public function getHash(): string {
 
-		$hash = '';
-		//return md5('asdff');
-
-		/* Loop through elements */
-		foreach ($this->toArray() as $name=>$object){
-
-			//if($name === 'site')continue;
-
-			if( $object instanceof Hashable ){
-				$hash .= $object->getHash();
-			}
-			else{
-				$hash .= md5(serialize($object));
-			}
-
-		}
+		$hash = 'qwefgsgwgfewe';
 
 		return md5($hash);
 	}
