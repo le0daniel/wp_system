@@ -97,6 +97,11 @@ class CreateTheme extends Command{
 
 		$dotenv = file_get_contents($this->root_dir.'/.env');
 
+		/* http://example.com */
+		$question = new Question('Please enter your home url [<info>http://example.com</info>]: ', 'http://example.com');
+		$question->setNormalizer([$this,'wrapInQuotes']);
+		$db['http://example.com']= $helper->ask($input, $output, $question);
+
 		/* Configure .env */
 		$question = new Question('Please enter the Database Username [<info>leodanielDev</info>]: ', 'leodanielDev');
 		$question->setNormalizer([$this,'wrapInQuotes']);
