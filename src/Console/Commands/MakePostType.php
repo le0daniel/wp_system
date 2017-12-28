@@ -74,7 +74,7 @@ class MakePostType extends Command {
 		$output->writeln('Path > <info>'.$this->theme_path.'</info>');
 
 		/* Set default Prefix */
-		$this->attributes['prefix']= substr(md5($theme),0,5 ).'_';
+		$this->attributes['prefix']= '';
 		$output->writeln('Default prefix > <info>'.$this->attributes['prefix'].'</info>');
 
 		/* Check if app was found */
