@@ -104,7 +104,7 @@ class App extends Container {
 		}
 
 		/* Set default config dir*/
-		if( !isset(self::$config_dir) ){
+		if( ! isset(self::$config_dir) ){
 			self::$config_dir = self::$root_dir.'/config';
 		}
 

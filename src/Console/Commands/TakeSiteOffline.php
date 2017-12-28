@@ -32,7 +32,7 @@ class TakeSiteOffline extends Command {
 	/**
 	 * @var string
 	 */
-	protected $dir = 'web/wp';
+	protected $dir = 'wp';
 
 	/**
 	 * Configure the command
@@ -57,7 +57,7 @@ class TakeSiteOffline extends Command {
 
 		$code = sprintf($this->code_format,time());
 
-		$dir = Path::$root_dir .'/'.$this->dir;
+		$dir = Path::webroot() .'/'.$this->dir;
 
 		if( ! file_exists($dir) || ! is_dir($dir) ){
 			throw new \Exception('WP dir not found');

@@ -19,7 +19,7 @@ use Symfony\Component\Console\Question\Question;
 
 class TakeSiteOnline extends Command{
 
-	protected $file = 'web/wp/.maintenance';
+	protected $file = 'wp/.maintenance';
 
 	/**
 	 * Configure the command
@@ -42,7 +42,7 @@ class TakeSiteOnline extends Command{
 	 */
 	protected function execute(InputInterface $input, OutputInterface $output){
 
-		$file = Path::$root_dir .'/'.$this->file;
+		$file = Path::webroot() .'/'.$this->file;
 
 		if( ! file_exists($file) ){
 			$output->writeln('<info>Site is already up</info>');
