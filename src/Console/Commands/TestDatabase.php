@@ -47,8 +47,8 @@ class TestDatabase extends command{
 			return;
 		}
 
-		/* Load Dot Env */
-		//App::loadEnv(Path::$root_dir);
+		/* Mysqli Throw Exception! */
+		mysqli_report(MYSQLI_REPORT_STRICT);
 
 		$output->writeln(sprintf('<info>Test database: %s</info>',  env('DB_NAME','NOT SET!')));
 		$output->writeln(sprintf('<info>> User   : %s</info>',      env('DB_USER','NOT SET!')));

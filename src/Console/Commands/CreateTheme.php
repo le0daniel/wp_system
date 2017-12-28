@@ -125,7 +125,7 @@ class CreateTheme extends Command{
 		file_put_contents($this->root_dir.'/.env',$dotenv);
 
 		/* Error Handling */
-		mysqli_report(MYSQLI_REPORT_STRICT | MYSQLI_REPORT_ALL);
+		mysqli_report(MYSQLI_REPORT_STRICT);
 
 		/* Check Database */
 		try{

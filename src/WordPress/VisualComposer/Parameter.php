@@ -17,6 +17,7 @@ class Parameter {
 	 * @var bool
 	 */
 	protected $autotranslate = true;
+	protected $translate = ['heading','description'];
 
 	/**
 	 * Contains all keys which are required!
@@ -205,7 +206,7 @@ class Parameter {
 		/* Translate */
 		if($this->autotranslate){
 
-			foreach(['heading','description'] as $key){
+			foreach($this->translate as $key){
 				$filtered[$key] = Language::translate($filtered[$key]);
 			}
 
