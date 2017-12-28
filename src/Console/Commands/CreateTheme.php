@@ -24,6 +24,7 @@ class CreateTheme extends Command{
 	protected $namespace;
 	protected $slug;
 	protected $root_dir;
+	protected $public_folder_name = 'public_html';
 
 	/**
 	 * Configure the command
@@ -118,6 +119,9 @@ class CreateTheme extends Command{
 		$dotenv = str_replace(array_keys($db),array_values($db),$dotenv);
 		file_put_contents($this->root_dir.'/.env',$dotenv);
 
+		/* Error Handling */
+		mysqli_report(MYSQLI_REPORT_STRICT | MYSQLI_REPORT_ALL);
+
 		/* Check Database */
 		try{
             $connection = mysqli_connect($db['database_host'],$db['database_user'],$db['database_password'],$db['database_name']);
@@ -204,7 +208,7 @@ class CreateTheme extends Command{
 		$array = [
 			'autoload'=>[
 				'psr-4' => [
-					$this->namespace.'\\' => 'public_html/app/themes/'.$this->slug.'/',
+					$this->namespace.'\\' => $this->public_folder_name.'/app/themes/'.$this->slug.'/',
 				]
 			]
 		];
