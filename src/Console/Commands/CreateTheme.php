@@ -24,7 +24,7 @@ class CreateTheme extends Command{
 	protected $namespace;
 	protected $slug;
 	protected $root_dir;
-	protected $public_folder_name = 'public_html';
+	protected $public_folder_name = 'public';
 
 	/**
 	 * Configure the command
