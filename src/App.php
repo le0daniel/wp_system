@@ -103,15 +103,19 @@ class App extends Container {
 			return;
 		}
 
+		/* Set default config dir*/
+		if( !isset(self::$config_dir) ){
+			self::$config_dir = self::$root_dir.'/config';
+		}
 
 		/** Load custom config file */
-		if( isset(self::$config_dir) && file_exists(self::$config_dir.'/system.php') ){
+		if( file_exists(self::$config_dir.'/system.php') ){
 			/* Include Config file */
 			$this->config = require self::$config_dir.'/system.php';
 		}
 
 		/** Fallback for old 'app' config file */
-		elseif (isset(self::$config_dir) && file_exists(self::$config_dir.'/app.php')){
+		elseif ( file_exists(self::$config_dir.'/app.php') ){
 			$this->config = require self::$config_dir.'/app.php';
 		}
 
