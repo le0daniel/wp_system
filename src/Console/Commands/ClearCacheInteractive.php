@@ -86,6 +86,10 @@ class ClearCacheInteractive extends Command{
 
 		$raw_files = glob($dir.'/*');
 
+		if( file_exists($dir.'/.htaccess') ){
+			$raw_files[] = $dir.'/.htaccess';
+		}
+
 		$files = [];
 		$dirs = [];
 
