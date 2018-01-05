@@ -60,7 +60,7 @@ class View {
 		'translate'     =>'\\le0daniel\\System\\Helpers\\TwigFilters::translate',
 
 		/* Text Eclipse */
-		'eclipse'=>'\\le0daniel\\System\\Helpers\\TwigFilters::eclipse',
+		'eclipse'       =>'\\le0daniel\\System\\Helpers\\TwigFilters::eclipse',
 	];
 
 	/**
@@ -73,7 +73,7 @@ class View {
 		'function'      =>'\\le0daniel\\System\\Helpers\\TwigFunctions::captureCallableOutput',
 		'cache_function'=>'\\le0daniel\\System\\Helpers\\TwigFunctions::captureAndCacheCallableOutput',
 		'field'         =>'\\le0daniel\\System\\Helpers\\TwigFunctions::getFieldValue',
-		'wp_nav'        =>'\\le0daniel\\System\\Helpers\\TwigFunctions::getWpNav'
+		//'wp_nav'        =>'\\le0daniel\\System\\Helpers\\TwigFunctions::getWpNav'
 	];
 
 	/**

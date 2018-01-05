@@ -21,9 +21,14 @@ class MetaField {
 	protected $attributes;
 
 	/**
+	 * @var string
+	 */
+	protected $_value = '';
+
+	/**
 	 * @var
 	 */
-	protected $field;
+	//protected $field;
 
 	/**
 	 * MetaField constructor.
@@ -41,14 +46,22 @@ class MetaField {
 			return;
 		}
 
-		$field =  get_field_object($key,$id);
+		/* Load the field */
+		$this->attributes =  get_field_object($key,$id);
 
-		$this->attributes = $field['value'];
-		unset($field['value']);
 
-		$this->field = $field;
+		if( isset($this->attributes['value']) ){
+			$this->_value = $this->attributes['value'];
+			unset($this->attributes['value']);
+		}
 
-		//$this->attributes = get_field_object($key,$id) ;
+	}
+
+	/**
+	 * Value magic getter
+	 */
+	protected function getValueAttribute(){
+		return $this->_value;
 	}
 
 	/**
@@ -56,15 +69,11 @@ class MetaField {
 	 */
 	public function __toString():string {
 
-		if ( is_string($this->attributes) ){
-			return $this->attributes;
+		if(! is_string($this->_value)){
+			return sprintf('Metafield value must be a string! %s given!',gettype($this->_value));
 		}
 
-		if( empty($this->attributes) ){
-			return '';
-		}
-
-		return json_encode($this->attributes);
+		return $this->_value;
 	}
 
 }

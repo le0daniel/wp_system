@@ -20,3 +20,20 @@ if( ! function_exists('resolve') ) {
 		return app()->make( $abstract, $params );
 	}
 }
+
+if( ! function_exists('cache') ) {
+
+	/**
+	 * @param null $key
+	 * @param null $value
+	 *
+	 * @return \Psr\SimpleCache\CacheInterface
+	 */
+	function cache($key = null, $value = null ) {
+
+		/** @var \Psr\SimpleCache\CacheInterface $manager */
+		$manager = resolve(\Psr\SimpleCache\CacheInterface::class);
+
+		return $manager;
+	}
+}
