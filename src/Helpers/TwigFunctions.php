@@ -44,7 +44,7 @@ class TwigFunctions {
 	 */
 	public static function captureAndCacheCallableOutput(string $callable,...$params){
 		/* generate key in namespace callable */
-		$key = 'callable_'.$callable; //.':'.md5(serialize($params));
+		$key = 'callable_'. md5( $callable ); //.'_'.md5(serialize($params));
 
 		/** @var CacheInterface $cache */
 		$cache = resolve(CacheInterface::class);
