@@ -23,7 +23,9 @@ class TwigFunctions {
 	public static function captureCallableOutput($callable,...$params){
 		ob_start();
 
-		$result = call_user_func_array($callable,$params);
+		/* Resolved through service container */
+		$result = app()->call($callable,$params); //call_user_func_array($callable,$params);
+
 		$content = ob_get_contents();
 
 		ob_end_clean();
