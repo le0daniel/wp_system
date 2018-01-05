@@ -26,7 +26,6 @@ class Path {
 		'cache',
 		'cache/rendered',
 		'cache/twig',
-		'cache/vc',
 		'cache/fastcache',
 		'storage',
 		'storage/log'

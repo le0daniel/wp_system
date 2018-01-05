@@ -13,6 +13,7 @@ use le0daniel\System\Helpers\Language;
 use le0daniel\System\Helpers\Path;
 use le0daniel\System\Helpers\TwigFilters;
 use le0daniel\System\WordPress\VisualComposer\ParameterHelper;
+use Psr\SimpleCache\CacheInterface;
 
 trait isVisualComposerComponent {
 	/**
@@ -20,14 +21,11 @@ trait isVisualComposerComponent {
 	 *
 	 * @return string
 	 */
-	protected function getFullCachePath():string{
-
+	protected function vcCacheName():string{
+		$namespace = 'vc_';
 		$cache_name = md5($this->name.$this->slug);
-		$cache_extension = '.serialized.vc';
 
-		$full_cache_path = Path::cachePath('vc/'.$cache_name.$cache_extension);
-		return $full_cache_path;
-
+		return $namespace.$cache_name;
 	}
 
 	/**
@@ -36,7 +34,7 @@ trait isVisualComposerComponent {
 	 * @return bool
 	 */
 	protected function isCached(): bool {
-		return (file_exists($this->getFullCachePath()) );
+		return ( cache()->has($this->vcCacheName()) );
 	}
 
 	/**
@@ -44,9 +42,12 @@ trait isVisualComposerComponent {
 	 */
 	public function toVisualComposer():array{
 
+		/** @var CacheInterface $manager */
+		$manager = cache();
+
 		/* Get from cache! */
-		if( $this->shouldCache() && $this->isCached() ){
-			return unserialize( file_get_contents($this->getFullCachePath()) );
+		if( $this->shouldCache() && $manager->has($this->vcCacheName()) ){
+			return $manager->get($this->vcCacheName());
 		}
 
 		/* Init Parameter Helper */
@@ -91,7 +92,7 @@ trait isVisualComposerComponent {
 
 		/* Cache */
 		if( $this->shouldCache() ){
-			file_put_contents( $this->getFullCachePath(), serialize($data) );
+			$manager->set($this->vcCacheName(),$data);
 		}
 
 		return $data;

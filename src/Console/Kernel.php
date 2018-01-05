@@ -30,7 +30,6 @@ class Kernel implements KernelContract {
 	 */
 	private $commands = [
 		MakeShortCut::class,
-		ClearCacheVC::class,
 		ClearCacheInteractive::class,
 		MakePostType::class,
 		TakeSiteOffline::class,
