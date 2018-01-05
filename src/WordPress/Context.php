@@ -53,7 +53,7 @@ class Context implements CastArray, Hashable {
 			$this->_is_resolved = true;
 		}
 
-		return $this->castBase();
+		return $this->cast;
 	}
 
 	/**
