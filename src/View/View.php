@@ -71,6 +71,7 @@ class View {
 	 */
 	protected $functions = [
 		'function'      =>'\\le0daniel\\System\\Helpers\\TwigFunctions::captureCallableOutput',
+		'cache_function'=>'\\le0daniel\\System\\Helpers\\TwigFunctions::captureAndCacheCallableOutput',
 		'field'         =>'\\le0daniel\\System\\Helpers\\TwigFunctions::getFieldValue',
 		'wp_nav'        =>'\\le0daniel\\System\\Helpers\\TwigFunctions::getWpNav'
 	];

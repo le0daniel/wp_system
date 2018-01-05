@@ -10,6 +10,7 @@ namespace le0daniel\System\Helpers;
 
 
 use le0daniel\System\WordPress\MetaField;
+use Psr\SimpleCache\CacheInterface;
 
 class TwigFunctions {
 
@@ -33,6 +34,34 @@ class TwigFunctions {
 		}
 
 		return $content;
+	}
+
+	/**
+	 * @param string $callable
+	 * @param array ...$params
+	 *
+	 * @return mixed
+	 */
+	public static function captureAndCacheCallableOutput(string $callable,...$params){
+		/* generate key in namespace callable */
+		$key = 'callable_'.$callable; //.':'.md5(serialize($params));
+
+		/** @var CacheInterface $cache */
+		$cache = resolve(CacheInterface::class);
+
+		/* Get from cache */
+		if($cache->has($key)){
+			return $cache->get($key);
+		}
+
+		/* Resolve */
+		$output = self::captureCallableOutput($callable,...$params);
+
+		/* Cache */
+		$cache->set($key,$output);
+
+		/* return */
+		return $output;
 	}
 
 	/**

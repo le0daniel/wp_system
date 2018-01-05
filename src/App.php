@@ -12,6 +12,7 @@ namespace le0daniel\System;
 use Illuminate\Container\Container;
 use le0daniel\System\Contracts\ServiceProvider;
 use le0daniel\System\Helpers\Path;
+use le0daniel\System\ServiceProviders\Cache;
 use le0daniel\System\ServiceProviders\WordPress;
 use Monolog\Logger;
 use le0daniel\System\Contracts\Kernel;
@@ -63,7 +64,8 @@ class App extends Container {
 	 * @var array
 	 */
 	protected $service_providers = [
-		WordPress::class
+		WordPress::class,
+		Cache::class,
 	];
 
 	/**
