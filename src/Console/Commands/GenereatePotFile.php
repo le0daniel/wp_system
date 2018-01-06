@@ -66,6 +66,10 @@ class GenereatePotFile extends Command {
 		/* Generate translation file */
 		foreach($total_keys as $filename => $keys){
 
+			if(empty($keys)){
+				continue;
+			}
+
 			/* Create file header */
 			$compiled_elements[] = implode(PHP_EOL,[
 				'# --------------'.str_pad('',strlen(basename($filename)),'-'),
