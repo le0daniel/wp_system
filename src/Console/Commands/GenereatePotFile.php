@@ -24,7 +24,9 @@ class GenereatePotFile extends Command {
 	 *
 	 * @var string
 	 */
-	protected $regex = '/{{\s*\'(?<t>.*?)\'\s*\|\s*t(?:.*?)}}/';
+	//protected $regex = '/{{\s*\'(?<t>.*?)\'\s*\|\s*t(?:.*?)}}/';
+	protected $regex = '/{{\s*([\'"])(?<t>.*?)\1\s*\|\s*t(?:.*?)}}/';
+
 
 
 	protected function configure()
