@@ -13,6 +13,7 @@ use Illuminate\Container\Container;
 use le0daniel\System\App;
 use le0daniel\System\Console\Commands\ClearCacheInteractive;
 use le0daniel\System\Console\Commands\ClearCacheVC;
+use le0daniel\System\Console\Commands\GenereatePotFile;
 use le0daniel\System\Console\Commands\MakePostType;
 use le0daniel\System\Console\Commands\MakeShortCut;
 use le0daniel\System\Console\Commands\TakeSiteOffline;
@@ -35,6 +36,7 @@ class Kernel implements KernelContract {
 		TakeSiteOffline::class,
 		TakeSiteOnline::class,
 		TestDatabase::class,
+		GenereatePotFile::class,
 	];
 
 	/**

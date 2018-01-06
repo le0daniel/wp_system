@@ -216,6 +216,23 @@ class Path {
 		return ( substr($path,0,1) === '/' );
 	}
 
+
+	/**
+	 * @param $pattern
+	 * @param int $flags
+	 *
+	 * @return array
+	 */
+	public static function find_recursive($pattern, $flags = 0)
+	{
+		$files = glob($pattern, $flags);
+		foreach (glob(dirname($pattern).'/*', GLOB_ONLYDIR|GLOB_NOSORT) as $dir)
+		{
+			$files = array_merge($files, self::find_recursive($dir.'/'.basename($pattern), $flags));
+		}
+		return $files;
+	}
+
 	/**
 	 * @param int $offset
 	 *
