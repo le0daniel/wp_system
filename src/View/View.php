@@ -61,7 +61,6 @@ class View {
 
 		/* Text Eclipse */
 		'eclipse'       =>'\\le0daniel\\System\\Helpers\\TwigFilters::eclipse',
-		'format'        =>'\\le0daniel\\System\\Helpers\\TwigFilters::format',
 	];
 
 	/**

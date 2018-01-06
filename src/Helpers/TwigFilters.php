@@ -98,14 +98,4 @@ class TwigFilters {
 
 	}
 
-	/**
-	 * @param string $format
-	 * @param array ...$params
-	 *
-	 * @return string
-	 */
-	public static function format(string $format, ...$params){
-		return sprintf($format,...$params);
-	}
-
 }
