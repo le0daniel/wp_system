@@ -57,7 +57,7 @@ class GenereatePotFile extends Command {
 			preg_match_all($this->regex, $content, $matches, PREG_SET_ORDER, 0);
 			$keys = array_column($matches,'t');
 
-			$total_keys[basename($file)] = $keys;
+			$total_keys[$file] = $keys;
 			unset($content);
 		}
 
@@ -99,11 +99,32 @@ class GenereatePotFile extends Command {
 	protected function compileElement(string $file,string $key):string{
 
 		return implode(PHP_EOL,[
-			sprintf('#: %s',$file),
+			sprintf('#: %s:%s',basename($file),$this->getLine($file,$key)),
 			sprintf('msgid "%s"', addslashes( $key ) ),
 			'msgstr ""',
 			'',
 		]);
+	}
+
+	/**
+	 * @param string $file
+	 * @param string $search
+	 *
+	 * @return string
+	 */
+	protected function getLine(string $file,string $search){
+		$line_number = false;
+
+		if ($handle = fopen($file, "r")) {
+			$count = 0;
+			while (($line = fgets($handle, 4096)) !== FALSE and !$line_number) {
+				$count++;
+				$line_number = (strpos($line, $search) !== FALSE) ? $count : $line_number;
+			}
+			fclose($handle);
+		}
+
+		return (string) $line_number;
 	}
 
 	/**
