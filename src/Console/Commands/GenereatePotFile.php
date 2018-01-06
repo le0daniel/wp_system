@@ -114,7 +114,7 @@ class GenereatePotFile extends Command {
 			$save_path = $save_path.Carbon::now()->format('Ymd_His').'.pot';
 		}
 
-		$max = max( array_map('strlen',$inspected_files) ) + 2;
+		$max = max( array_merge( array_map('strlen',$inspected_files), [33] ) ) + 2;
 		$pad = '# '.str_pad('',$max,'_');
 
 		$header = [
