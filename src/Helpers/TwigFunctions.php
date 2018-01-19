@@ -52,7 +52,7 @@ class TwigFunctions {
 		$cache = resolve(CacheInterface::class);
 
 		/* Get from cache */
-		if($cache->has($key)){
+		if($cache->has($key) && ! WP_DEBUG){
 			return $cache->get($key);
 		}
 

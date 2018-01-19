@@ -10,14 +10,14 @@ namespace le0daniel\System\View;
 
 
 use Illuminate\Container\Container;
-use le0daniel\System\App;
 use le0daniel\System\Contracts\CastArray;
 use le0daniel\System\Helpers\Path;
-use le0daniel\System\WordPress\Context;
-use Monolog\Logger;
 
 class View {
 
+	/**
+	 * @var Container
+	 */
 	protected $container;
 
 	/**

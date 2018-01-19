@@ -33,7 +33,7 @@ class GenereatePotFile extends Command {
 	{
 		$this
 			->setName('generate:pot')
-			->setDescription('This command should only be runned once')
+			->setDescription('Generates a Pot File from all translation used in twig files')
 			->setHelp('This command allows you to generate all files needed when creating a new Theme');
 	}
 
@@ -49,18 +49,10 @@ class GenereatePotFile extends Command {
 			Path::activeThemePath('resources/views/*.twig')
 		);
 
-		$total_keys = [];
+		/** @var array $total_keys */
+		$total_keys = $this->getTwigFilesInfo();
 
-		foreach($files as $file){
-
-			$content = file_get_contents($file);
-			preg_match_all($this->regex, $content, $matches, PREG_SET_ORDER, 0);
-			$keys = array_column($matches,'t');
-
-			$total_keys[$file] = $keys;
-			unset($content);
-		}
-
+		/** @var array $compiled_elements */
 		$compiled_elements = [];
 
 		/* Generate translation file */
@@ -88,6 +80,36 @@ class GenereatePotFile extends Command {
 
 		$this->generateFile($compiled_elements,array_keys($total_keys));
 
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getTwigFilesInfo():array{
+
+		/* Find the files recursively */
+		$files = Path::find_recursive(
+			Path::activeThemePath('resources/views/*.twig')
+		);
+
+		$keys_per_file = [];
+
+		/* Loop through file and find patterns */
+		foreach($files as $file){
+
+			/* Apply regex */
+			$content = file_get_contents($file);
+			preg_match_all($this->regex, $content, $matches, PREG_SET_ORDER, 0);
+			unset($content);
+
+			/* Get keys */
+			$keys = array_column($matches,'t');
+
+			$keys_per_file[$file] = $keys;
+
+		}
+
+		return $keys_per_file;
 	}
 
 	/**
