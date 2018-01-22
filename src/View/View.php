@@ -54,6 +54,7 @@ class View {
 		'theme_path'    =>'\\le0daniel\\System\\Helpers\\TwigFilters::themePath',
 		'static_path'   =>'\\le0daniel\\System\\Helpers\\TwigFilters::staticPath',
 		'mix'           =>'\\le0daniel\\System\\Helpers\\TwigFilters::mix',
+		'shortcode'     =>'\\le0daniel\\System\\Helpers\\TwigFilters:shortcode',
 
 		/* Translation filters */
 		't'             =>'\\le0daniel\\System\\Helpers\\TwigFilters::translate',
