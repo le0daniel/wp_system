@@ -217,7 +217,7 @@ class View {
 	 * @param string $name
 	 * @param array $params
 	 */
-	public function addFilter(callable $callable,string $name,$params = []){
+	public function addFilter($callable,string $name,$params = []){
 		$this->getTwig()->addFilter(
 			new \Twig_Filter($name,$callable,$params)
 		);
@@ -228,7 +228,7 @@ class View {
 	 * @param string $name
 	 * @param array $params
 	 */
-	public function addFunction(callable $callable,string $name,$params = []){
+	public function addFunction($callable,string $name,$params = []){
 		$this->getTwig()->addFunction(
 			new \Twig_Function($name,$callable,$params)
 		);
