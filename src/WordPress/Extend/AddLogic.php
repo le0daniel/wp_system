@@ -147,6 +147,17 @@ class AddLogic implements AddLogicToWordpress {
 			$args
 		);
 
+		/**
+		 * Call the Taxemonies hook!
+		 */
+		$post_type->taxonomies();
+
+		/**
+		 * Call the registered method!
+		 */
+		if( method_exists($post_type,'registered') ){
+			$post_type->registered();
+		}
 	}
 
 	/**

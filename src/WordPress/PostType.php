@@ -62,6 +62,11 @@ class PostType implements PostTypeContract {
 	}
 
 	/**
+	 * Used to register Post Type Specific takemonies
+	 */
+	public function taxonomies(){}
+
+	/**
 	 * Returns all args
 	 *
 	 * @return array

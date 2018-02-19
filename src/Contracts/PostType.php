@@ -13,4 +13,5 @@ interface PostType {
 
 	public function toPostType():array;
 
+	public function taxonomies();
 }
