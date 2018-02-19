@@ -118,7 +118,7 @@ class AddLogic implements AddLogicToWordpress {
 			$abstract = $this->container->make($abstract);
 		}
 
-		if( $abstract instanceof JsonApiEndpoint ){
+		if( ! ( $abstract instanceof JsonApiEndpoint ) ){
 			throw new \Exception('Endpoints must implement the JsonApiEndpoint Interface!');
 		}
 
