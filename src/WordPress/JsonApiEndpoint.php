@@ -69,7 +69,7 @@ class JsonApiEndpoint implements JsonApiEndpointContract {
 	 * @return array
 	 */
 	public function appendArguments():array{
-
+		return [];
 	}
 
 	public function handle( \WP_REST_Request $request ) {
