@@ -10,6 +10,7 @@ namespace le0daniel\System\WordPress\Extend;
 
 use Illuminate\Container\Container;
 use le0daniel\System\Contracts\AddLogicToWordpress;
+use le0daniel\System\Contracts\JsonApiEndpoint;
 use le0daniel\System\Contracts\PostType;
 use le0daniel\System\Contracts\ShortCode;
 use le0daniel\System\Contracts\VisualComposerComponent;
@@ -44,6 +45,13 @@ class AddLogic implements AddLogicToWordpress {
 	protected $shortcodes = [];
 
 	/**
+	 * Array containg Json Endpoints
+	 *
+	 * @var array
+	 */
+	protected $json_endpoints = [];
+
+	/**
 	 * @var array
 	 */
 	protected $vc_components = [];
@@ -69,6 +77,9 @@ class AddLogic implements AddLogicToWordpress {
 		/* Add Actions */
 		add_action('init',[$this,'init']);
 
+		/* Add Rest Init Hook */
+		add_action('rest_api_init',[$this,'rest_init']);
+
 		/* Register Possible VS Components */
 		add_action('vc_before_init',[$this,'registerVisualComposerComponents']);
 	}
@@ -85,6 +96,34 @@ class AddLogic implements AddLogicToWordpress {
 
 		/* Register Navs */
 		array_walk($this->navs,[$this,'registerNav']);
+	}
+
+	/**
+	 * Init Rest API
+	 */
+	public function rest_init(){
+		/* Create Rest Endpoints */
+		array_walk($this->json_endpoints,[$this,'registerEndpoints']);
+	}
+
+	/**
+	 * @param $abstract
+	 *
+	 * @throws \Exception
+	 */
+	public function registerEndpoints($abstract){
+
+		if( ! is_object($abstract) ){
+			/** @var JsonApiEndpoint $abstract */
+			$abstract = $this->container->make($abstract);
+		}
+
+		if( $abstract instanceof JsonApiEndpoint ){
+			throw new \Exception('Endpoints must implement the JsonApiEndpoint Interface!');
+		}
+
+		/* Register The endpoint! */
+		register_rest_route( ...$abstract->toJsonApiEndpoint() );
 	}
 
 	/**
