@@ -72,6 +72,10 @@ class JsonApiEndpoint implements JsonApiEndpointContract {
 
 	}
 
+	public function handle( \WP_REST_Request $request ) {
+
+	}
+
 	/**
 	 * Returns the JSON API Endpoint data
 	 *
